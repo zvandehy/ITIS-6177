@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
+    <title>Zeke Van Dehy - Week 03</title>
+</head>
+<body>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-xs-12">
+                <label for="title">Title:</label>
+                <input type="text" name="title" id="title">
+            </div>
+            <div class="col-xs-12">
+                <label for="author">Author:</label>
+                <input type="text" name="author" id="author">
+            </div>
+            <div class="col-xs-12">
+                <button type="button" class="btn btn-success" onclick="sendPost()">Send</button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12" id='list'>
+
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.4/axios.min.js" integrity="sha512-lTLt+W7MrmDfKam+r3D2LURu0F47a3QaW5nF0c6Hl0JDZ57ruei+ovbg7BrZ+0bjVJ5YgzsAWE+RreERbpPE1g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script>
+        function sendPost() {
+            console.log("called")
+            const title = document.getElementById("title").value;
+            const author = document.getElementById("author").value;
+            const req = {title, author};
+            axios.post('http://localhost:3004/posts', req)
+            .then((res) => {
+                console.log(res);
+                document.getElementById("title").value = '';
+                document.getElementById("title").focus();
+                document.getElementById("author").value = '';
+                getPosts();
+            })
+            .catch(err => console.log(err));
+        }
+
+        function getPosts() {
+            axios.get('http://localhost:3004/posts')
+            .then((response) => {
+                const list = document.getElementById('list');
+                if (response && response.data) {
+                    list.innerHTML = '';
+                    response.data.forEach(post => {
+                        list.innerHTML += "<br>" + post.title + ' :: ' + post.author;
+                    });
+                }
+            })
+            .catch(err => console.log(err));
+        }
+    
+        getPosts();
+
+    </script>
+</body>
+</html>
