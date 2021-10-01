@@ -86,17 +86,13 @@ app.get('/say', (req, res) => {
             }
         )
             .then(received => {
-                console.log("Finished: ");
-                console.log(received);
+                console.log(received.data);
                 res.send(received.data)
             })
             .catch(err => {
                 console.log("Error: " + err);
                 res.statusCode = err.status
                 res.send(err);
-            })
-            .finally(() => {
-                console.log("Finally")
             })
     } else {
         res.statusCode = 400;
