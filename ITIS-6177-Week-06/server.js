@@ -86,7 +86,8 @@ app.get('/say', (req, res) => {
             }
         )
             .then(received => {
-                console.log("Finished: " + received);
+                console.log("Finished: ");
+                console.log(received);
                 res.send(received.body)
             })
             .catch(err => {
