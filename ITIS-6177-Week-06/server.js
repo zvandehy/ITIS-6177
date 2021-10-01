@@ -2,6 +2,7 @@ const express = require('express');
 const mariadb = require('mariadb');
 const bodyParser = require('body-parser');
 const path = require('path');
+const axios = require('axios');
 
 const app = express();
 
@@ -84,10 +85,17 @@ app.get('/say', (req, res) => {
                 },
             }
         )
-            .then(received => res.send(received.body))
+            .then(received => {
+                console.log("Finished: " + received);
+                res.send(received.body)
+            })
             .catch(err => {
+                console.log("Error: " + err);
                 res.statusCode = err.status
                 res.send(err);
+            })
+            .finally(() => {
+                console.log("Finally")
             })
     } else {
         res.statusCode = 400;
