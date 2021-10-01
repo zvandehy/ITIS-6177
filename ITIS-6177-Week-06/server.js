@@ -73,6 +73,29 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(specs));
 app.use(cors({ origin: ['147.182.214.176:3000'] }));
 
+
+app.get('/say', (req, res) => {
+    console.log(req.params)
+    if (req.params.keyword) {
+        axios.get('https://zekesays.azurewebsites.net/api/SayZeke?code=kjsPXszk5bCXAk90w2a0F7MHpFr8B9enYWssUhIoTEpg3T7DtTxwgQ==',
+            {
+                data: {
+                    keyword: req.params.keyword,
+                },
+            }
+        )
+            .then(received => res.send(received.body))
+            .catch(err => {
+                res.statusCode = err.status
+                res.send(err);
+            })
+    } else {
+        res.statusCode = 400;
+        res.send("'keyword' is not defined in query parameters")
+    }
+
+});
+
 /**
  * @swagger
  * /api/v1/agents:
