@@ -1,0 +1,9 @@
+{
+    "azureFunctions.deploySubpath": "ITIS-6177-Week-06/SayZeke_AzureFunction",
+    "azureFunctions.postDeployTask": "npm install (functions)",
+    "azureFunctions.projectLanguage": "JavaScript",
+    "azureFunctions.projectRuntime": "~3",
+    "debug.internalConsoleOptions": "neverOpen",
+    "azureFunctions.projectSubpath": "ITIS-6177-Week-06/SayZeke_AzureFunction",
+    "azureFunctions.preDeployTask": "npm prune (functions)"
+}
