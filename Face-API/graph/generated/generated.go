@@ -630,6 +630,12 @@ var sources = []*ast.Source{
 #
 # https://gqlgen.com/getting-started/
 
+"""
+DetectedFace in the provided image has a unique FaceID uuid
+A rectangle can be drawn around the detected face using FaceRectangle information.
+Face features can be pinpointed using FaceLandmarks.
+Attributes of the face like hair, emotion, gender, etc. can be found in FaceAttributes.
+"""
 type DetectedFace {
   FaceID: String!
   FaceRectangle: Rectangle!
@@ -637,6 +643,15 @@ type DetectedFace {
   FaceAttributes: Attributes!
 }
 
+"""
+Rectangle gives the top left corner of a detected face and how long (height) and wide (length) the detected face is.
+
+To draw a rectangle around the detected face:
+  Top-left corner: (Top, Left)
+  Top-right corner: (Top, Left+Width)
+  Bottom-left corner: (Top+Height, Left)
+  Bottom-right corner: (Top+Height, Left+Width)
+"""
 type Rectangle {
   Width: Int!
   Height: Int!
@@ -644,6 +659,9 @@ type Rectangle {
   Left: Int!
 }
 
+"""
+Detected Faces have explicit features related to the positioning of a person's eyes, mouth, and nose that can be plotted on a 2-dimensional plane.
+"""
 type Landmarks {
   PupilLeft: Coordinate
   PupilRight: Coordinate
@@ -674,24 +692,77 @@ type Landmarks {
   UnderLipBottom: Coordinate
 }
 
+"""
+Attributes of the detected face
+"""
 type Attributes {
+  """
+  Estimated age of the detected face in years.
+  """
   Age: Float
+  """
+  Predicted gender of the detected face is "female" or "male".
+  """
   Gender: String
+  """
+  Estimated smile intensity of the detected face where 0 is no smile and 1 is a strong smile.
+  """
   Smile: Float
+  """
+  Estimated length of the moustache on the detected face where 0 is no moustache and 1 is a very long moustache.
+  """
   Moustache: Float
+  """
+  Estimated length of the beard on the detected face where 0 is no beard and 1 is a very long beard.
+  """
   Beard: Float
+  """
+  Estimated length of the sideburns on the detected face where 0 is no sideburns and 1 is a very long sideburns.
+  """
   Sideburns: Float
+  """
+  Predicted type of glasses on the detected face. Values could be "NoGlasses", "ReadingGlasses", "Sunglasses", or "SwimmingGoggles".
+  """
   Glasses: String
+  """
+  The intensity of each type of emotion that can be detected on the face. Values range between [0,1] where 0 is no emotion and 1 is an intense emotion.
+  """
   Emotion: Emotion
+  """
+  Highest confidence hair color of the detected face. If the color cannot be detected, the hair is "invisible", or the individual is likely "bald" then the returned color is "Unknown".
+  """
   HairColor: String
+  """
+  EyeMakeup predicts if the detected face is wearing eye makeup (true) or not (false).
+  """
   EyeMakeup: Boolean
+  """
+  LipMakeup predicts if the detected face is wearing lipstick (true) or not (false).
+  """
   LipMakeup: Boolean
+  """
+  Accessories around the detected face, including 'headwear', 'glasses' and 'mask'. Empty array means no accessories detected. Note this is after a face is detected. Large mask could result in no face to be detected.
+  """
   Accessories: [String]
+  """
+  Blur is a value between [0,1] that indicates the blurriness of a detected face where 0 is not blurry and 1 is very blurry.
+  """
   Blur: Float
+  """
+  Exposure is a value between [0,1] that indicates the exposure of a detected face where values close to 0 indicate underexposure and values closer to 1 indicate overexposure. Values close to .5 indicate good exposure.
+  """
   Exposure: Float
+  """
+  Noise indicates how noisy the detected face image is where 0 is no noise and 1 is very noisy.
+  """
   Noise: Float
 }
 
+"""
+Each Emotion is a value between 0  and 1 that indicates the confidence that the detected Face is showing the specified Emotion.
+
+0 indicates the Emotion is absent and 1 indicates the Emotion is present.
+"""
 type Emotion {
   Anger: Float!
   Contempt: Float!
@@ -703,12 +774,30 @@ type Emotion {
   Surprise: Float!
 }
 
+"""
+Coordinates (X,Y) of the specified Landmark
+"""
 type Coordinate {
   X: Float!
   Y: Float!
 }
 
 type Query {
+  """
+  Given the url of an image, return all of the detected faces in the image.
+
+  Images should be JPEG, PNG, GIF (first frame), or BMP format.
+
+  For most accurate results, images should be oriented so that a face's eyes are at the top and the chin is at the bottom.
+
+  Faces that are between 36x36 pixels and 4096x4096 pixels can be detected, provided that the total image size is proportional. For example, a minimum face size of 36x36 can be detected in a 1920x1080px image, but larger images will have a larger minimum face size.
+
+  Faces are less detectable if:
+    * the image has extreme lighting
+    * the face (and/or eyes) is obstructed
+    * the face has unusual hair type or facial hair
+    * the face has extreme expressions
+  """
   faces(url: String!): [DetectedFace!]!
 }
 `, BuiltIn: false},

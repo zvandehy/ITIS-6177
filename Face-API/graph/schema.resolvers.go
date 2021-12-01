@@ -42,6 +42,8 @@ func getAttributes(face face.DetectedFace) *model.Attributes {
 				max = *val.Confidence
 			}
 		}
+	} else {
+		hairColor = "Unknown"
 	}
 	var accessories []*string
 	for _, val := range *face.FaceAttributes.Accessories {

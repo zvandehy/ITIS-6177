@@ -2,29 +2,50 @@
 
 package model
 
+// Attributes of the detected face
 type Attributes struct {
-	Age         *float64  `json:"Age"`
-	Gender      *string   `json:"Gender"`
-	Smile       *float64  `json:"Smile"`
-	Moustache   *float64  `json:"Moustache"`
-	Beard       *float64  `json:"Beard"`
-	Sideburns   *float64  `json:"Sideburns"`
-	Glasses     *string   `json:"Glasses"`
-	Emotion     *Emotion  `json:"Emotion"`
-	HairColor   *string   `json:"HairColor"`
-	EyeMakeup   *bool     `json:"EyeMakeup"`
-	LipMakeup   *bool     `json:"LipMakeup"`
+	// Estimated age of the detected face in years.
+	Age *float64 `json:"Age"`
+	// Predicted gender of the detected face is "female" or "male".
+	Gender *string `json:"Gender"`
+	// Estimated smile intensity of the detected face where 0 is no smile and 1 is a strong smile.
+	Smile *float64 `json:"Smile"`
+	// Estimated length of the moustache on the detected face where 0 is no moustache and 1 is a very long moustache.
+	Moustache *float64 `json:"Moustache"`
+	// Estimated length of the beard on the detected face where 0 is no beard and 1 is a very long beard.
+	Beard *float64 `json:"Beard"`
+	// Estimated length of the sideburns on the detected face where 0 is no sideburns and 1 is a very long sideburns.
+	Sideburns *float64 `json:"Sideburns"`
+	// Predicted type of glasses on the detected face. Values could be "NoGlasses", "ReadingGlasses", "Sunglasses", or "SwimmingGoggles".
+	Glasses *string `json:"Glasses"`
+	// The intensity of each type of emotion that can be detected on the face. Values range between [0,1] where 0 is no emotion and 1 is an intense emotion.
+	Emotion *Emotion `json:"Emotion"`
+	// Highest confidence hair color of the detected face. If the color cannot be detected, the hair is "invisible", or the individual is likely "bald" then the returned color is "Unknown".
+	HairColor *string `json:"HairColor"`
+	// EyeMakeup predicts if the detected face is wearing eye makeup (true) or not (false).
+	EyeMakeup *bool `json:"EyeMakeup"`
+	// LipMakeup predicts if the detected face is wearing lipstick (true) or not (false).
+	LipMakeup *bool `json:"LipMakeup"`
+	// Accessories around the detected face, including 'headwear', 'glasses' and 'mask'. Empty array means no accessories detected. Note this is after a face is detected. Large mask could result in no face to be detected.
 	Accessories []*string `json:"Accessories"`
-	Blur        *float64  `json:"Blur"`
-	Exposure    *float64  `json:"Exposure"`
-	Noise       *float64  `json:"Noise"`
+	// Blur is a value between [0,1] that indicates the blurriness of a detected face where 0 is not blurry and 1 is very blurry.
+	Blur *float64 `json:"Blur"`
+	// Exposure is a value between [0,1] that indicates the exposure of a detected face where values close to 0 indicate underexposure and values closer to 1 indicate overexposure. Values close to .5 indicate good exposure.
+	Exposure *float64 `json:"Exposure"`
+	// Noise indicates how noisy the detected face image is where 0 is no noise and 1 is very noisy.
+	Noise *float64 `json:"Noise"`
 }
 
+// Coordinates (X,Y) of the specified Landmark
 type Coordinate struct {
 	X float64 `json:"X"`
 	Y float64 `json:"Y"`
 }
 
+// DetectedFace in the provided image has a unique FaceID uuid
+// A rectangle can be drawn around the detected face using FaceRectangle information.
+// Face features can be pinpointed using FaceLandmarks.
+// Attributes of the face like hair, emotion, gender, etc. can be found in FaceAttributes.
 type DetectedFace struct {
 	FaceID         string      `json:"FaceID"`
 	FaceRectangle  *Rectangle  `json:"FaceRectangle"`
@@ -32,6 +53,9 @@ type DetectedFace struct {
 	FaceAttributes *Attributes `json:"FaceAttributes"`
 }
 
+// Each Emotion is a value between 0  and 1 that indicates the confidence that the detected Face is showing the specified Emotion.
+//
+// 0 indicates the Emotion is absent and 1 indicates the Emotion is present.
 type Emotion struct {
 	Anger     float64 `json:"Anger"`
 	Contempt  float64 `json:"Contempt"`
@@ -43,6 +67,7 @@ type Emotion struct {
 	Surprise  float64 `json:"Surprise"`
 }
 
+// Detected Faces have explicit features related to the positioning of a person's eyes, mouth, and nose that can be plotted on a 2-dimensional plane.
 type Landmarks struct {
 	PupilLeft           *Coordinate `json:"PupilLeft"`
 	PupilRight          *Coordinate `json:"PupilRight"`
@@ -73,6 +98,13 @@ type Landmarks struct {
 	UnderLipBottom      *Coordinate `json:"UnderLipBottom"`
 }
 
+// Rectangle gives the top left corner of a detected face and how long (height) and wide (length) the detected face is.
+//
+// To draw a rectangle around the detected face:
+//   Top-left corner: (Top, Left)
+//   Top-right corner: (Top, Left+Width)
+//   Bottom-left corner: (Top+Height, Left)
+//   Bottom-right corner: (Top+Height, Left+Width)
 type Rectangle struct {
 	Width  int `json:"Width"`
 	Height int `json:"Height"`
