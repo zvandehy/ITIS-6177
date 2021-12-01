@@ -1,0 +1,85 @@
+# GraphQL schema example
+#
+# https://gqlgen.com/getting-started/
+
+type DetectedFace {
+  FaceID: String!
+  FaceRectangle: Rectangle!
+  FaceLandmarks: Landmarks!
+  FaceAttributes: Attributes!
+}
+
+type Rectangle {
+  Width: Int!
+  Height: Int!
+  Top: Int!
+  Left: Int!
+}
+
+type Landmarks {
+  PupilLeft: Coordinate
+  PupilRight: Coordinate
+  NoseTip: Coordinate
+  MouthLeft: Coordinate
+  MouthRight: Coordinate
+  EyebrowLeftOuter: Coordinate
+  EyebrowLeftInner: Coordinate
+  EyeLeftOuter: Coordinate
+  EyeLeftTop: Coordinate
+  EyeLeftBottom: Coordinate
+  EyeLeftInner: Coordinate
+  EyebrowRightInner: Coordinate
+  EyebrowRightOuter: Coordinate
+  EyeRightInner: Coordinate
+  EyeRightTop: Coordinate
+  EyeRightBottom: Coordinate
+  EyeRightOuter: Coordinate
+  NoseRootLeft: Coordinate
+  NoseRootRight: Coordinate
+  NoseLeftAlarTop: Coordinate
+  NoseRightAlarTop: Coordinate
+  NoseLeftAlarOutTip: Coordinate
+  NoseRightAlarOutTip: Coordinate
+  UpperLipTop: Coordinate
+  UpperLipBottom: Coordinate
+  UnderLipTop: Coordinate
+  UnderLipBottom: Coordinate
+}
+
+type Attributes {
+  Age: Float
+  Gender: String
+  Smile: Float
+  Moustache: Float
+  Beard: Float
+  Sideburns: Float
+  Glasses: String
+  Emotion: Emotion
+  HairColor: String
+  EyeMakeup: Boolean
+  LipMakeup: Boolean
+  Accessories: [String]
+  Blur: Float
+  Exposure: Float
+  Noise: Float
+}
+
+type Emotion {
+  Anger: Float!
+  Contempt: Float!
+  Disgust: Float!
+  Fear: Float!
+  Happiness: Float!
+  Neutral: Float!
+  Sadness: Float!
+  Surprise: Float!
+}
+
+type Coordinate {
+  X: Float!
+  Y: Float!
+}
+
+type Query {
+  faces(url: String!): [DetectedFace!]!
+}
