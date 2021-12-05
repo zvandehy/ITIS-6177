@@ -6,6 +6,7 @@ require (
 	github.com/99designs/gqlgen v0.14.0
 	github.com/Azure/azure-sdk-for-go v59.4.0+incompatible
 	github.com/Azure/go-autorest/autorest v0.11.22
+	github.com/gofrs/uuid v4.2.0+incompatible
 	github.com/spf13/viper v1.9.0
 	github.com/vektah/gqlparser/v2 v2.2.0
 )
@@ -21,7 +22,6 @@ require (
 	github.com/cpuguy83/go-md2man/v2 v2.0.0-20190314233015-f79a8a8ca69d // indirect
 	github.com/form3tech-oss/jwt-go v3.2.2+incompatible // indirect
 	github.com/fsnotify/fsnotify v1.5.1 // indirect
-	github.com/gofrs/uuid v4.2.0+incompatible // indirect
 	github.com/gorilla/websocket v1.4.2 // indirect
 	github.com/hashicorp/golang-lru v0.5.1 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect

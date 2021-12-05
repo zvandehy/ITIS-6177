@@ -1,0 +1,1999 @@
+<!doctype html>
+<html class="no-js" lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EZ Face API</title>
+  <link rel="stylesheet" href="stylesheets/spectaql.min.css" />
+  <link rel="stylesheet" href="stylesheets/foundation.css" />
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@600&display=swap" rel="stylesheet">
+  <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+  <script src="javascripts/spectaql.min.js"></script>
+  <script src="javascripts/interactive.js"></script>
+</head>
+
+<body id="spectacle">
+  <div id="page" class="drawer-layout drawer-slide-right-large">
+    <div id="sidebar">
+      <button id="close-button" class="close-button" aria-label="Close menu" type="button" data-drawer-close>
+        <span aria-hidden="true">×</span>
+      </button>
+      <nav id="nav" role="navigation">
+        <h5>Introduction</h5>
+        <a href="#introduction">Welcome</a>
+        <h5>Operations</h5>
+        <section>
+          <a href="#tag-Queries">Queries</a>
+          <ul>
+            <li>
+              <a href="#operation-facelist-Queries"> facelist </a>
+            </li>
+            <li>
+              <a href="#operation-faces-Queries"> faces </a>
+            </li>
+            <li>
+              <a href="#operation-findsimilarface-Queries"> findSimilarFace </a>
+            </li>
+          </ul>
+        </section>
+        <section>
+          <a href="#tag-Mutations">Mutations</a>
+          <ul>
+            <li>
+              <a href="#operation-addfacetolist-Mutations"> addFaceToList </a>
+            </li>
+            <li>
+              <a href="#operation-createfacelist-Mutations"> createFaceList </a>
+            </li>
+            <li>
+              <a href="#operation-deletefacefromlist-Mutations"> deleteFaceFromList </a>
+            </li>
+            <li>
+              <a href="#operation-deletefacelist-Mutations"> deleteFaceList </a>
+            </li>
+          </ul>
+        </section>
+        <h5>Types</h5>
+        <a href="#definition-Attributes"> Attributes </a>
+        <a href="#definition-Boolean"> Boolean </a>
+        <a href="#definition-Coordinate"> Coordinate </a>
+        <a href="#definition-DetectedFace"> DetectedFace </a>
+        <a href="#definition-Emotion"> Emotion </a>
+        <a href="#definition-FaceList"> FaceList </a>
+        <a href="#definition-FaceResponse"> FaceResponse </a>
+        <a href="#definition-Float"> Float </a>
+        <a href="#definition-Int"> Int </a>
+        <a href="#definition-Landmarks"> Landmarks </a>
+        <a href="#definition-Rectangle"> Rectangle </a>
+        <a href="#definition-SimilarFace"> SimilarFace </a>
+        <a href="#definition-SimilarFaceResponse"> SimilarFaceResponse </a>
+        <a href="#definition-String"> String </a>
+      </nav>
+    </div>
+    <div id="docs" class="row collapse expanded drawer" data-drawer>
+      <button class="floating-menu-icon" type="button" data-drawer-slide="right">
+        <span class="hamburger"></span>
+      </button>
+      <div class="example-box doc-content"></div>
+      <article id="content">
+        <h1 class="doc-title">EZ Face API</h1>
+        <div id="introduction" data-traverse-target="introduction">
+          <div class="doc-row">
+            <div class="doc-copy">
+              <p>Welcome to the EZ Face API, powered by the <a
+                  href="https://docs.microsoft.com/en-us/azure/cognitive-services/face/overview"
+                  target="_blank">Cognitive Services API</a> from Azure. This GraphQL API allows you to easily
+                <a href="#operation-faces-Queries">detect faces</a> found in requested image URLs, or
+                <a href="#operation-createFaceList-Mutations">create</a> and manage your own
+                <a href="#operation-facelists-Queries">FaceLists</a>. You can even
+                <a href="#operation-findsimilarface-Queries">Find Similar</a> faces in your facelists by comparing the
+                list to a new face found in a requested image URL.
+              </p>
+
+              <p>GraphQL enables you to quickly request exactly what you want to retrieve from the API. This is useful
+                because it is likely that you are only interested in specific features of a <a
+                  href="#definition-DetectedFace"">DetectedFace</a>, like it's Happiness, Rectangle, or Hair Color.</p>
+
+  <p>To get started with the API, I suggest you first explore the <a href=" #operation-faces-Queries">detect faces</a>
+                endpoint. Open the GraphQL Playground for this endpoint and explore what face attributes you can find.
+                The response documentation can either be read here, or in the playground itself by clicking on "DOCS" on
+                the right. When in the Playground, assign query parameters like "url" in the <i>Query Variables</i> tab
+                at the bottom, by setting the variable to a value like this:
+                <code>{"url":"enter_image_url_here"}</code>.</p>
+              <p><span class="playground" onclick="tryItNow('faces')">Try the detect faces endpoint now!</span></p>
+
+              <p>Then, you can also use facelists to find similar faces. To work with this functionality, first <a
+                  href="#operation-createfacelist-Mutations">create</a> a facelist. Then, <a
+                  href="#operation-addfacetolist-Mutations">add a new face</a> to the facelist by submitting an image
+                url with a single face, along with the unique facelistID you assigned to your new facelist. Add as many
+                faces as you want. Finally, <a href="#operation-findsimilarface-Queries">find similar faces</a> by
+                comparing a new face to your facelist.</p>
+              <p><span class="playground" onclick="tryItNow('createfacelist')">Get started now by creating a new
+                  facelist!</span></p>
+
+              <p>For your convenience here are 10 urls to images of different NBA players that you could detect the
+                faces of. Simply click on the player to copy their image url.
+              <table>
+                <tr>
+                  <th>Player</th>
+                  <th>URL</th>
+                  <th>Face</th>
+                </tr>
+                <tr class="copy">
+                  <td>LeBron James</td>
+                  <td class="imageURL">https://cdn.nba.com/headshots/nba/latest/1040x760/2544.png</td>
+                  <td><img src="https://cdn.nba.com/headshots/nba/latest/1040x760/2544.png" alt="image of Lebron James">
+                  </td>
+                  <td><span class="tooltip">Copy!</span></td>
+                </tr>
+                <tr class="copy">
+                  <td>Nikola Jokic</td>
+                  <td class="imageURL">https://cdn.nba.com/headshots/nba/latest/1040x760/203999.png</td>
+                  <td><img src="https://cdn.nba.com/headshots/nba/latest/1040x760/203999.png"
+                      alt="image of Nikola Jokic"></td>
+                  <td><span class="tooltip">Copy!</span></td>
+                </tr>
+                <tr class="copy">
+                  <td>Giannis Antetokounmpo</td>
+                  <td class="imageURL">https://cdn.nba.com/headshots/nba/latest/1040x760/203507.png</td>
+                  <td><img src="https://cdn.nba.com/headshots/nba/latest/1040x760/203507.png"
+                      alt="image of Giannis Antetokounmpo"></td>
+                  <td><span class="tooltip">Copy!</span></td>
+                </tr>
+                <tr class="copy">
+                  <td>Thanasis Antetokounmpo</td>
+                  <td class="imageURL">https://cdn.nba.com/headshots/nba/latest/1040x760/203648.png</td>
+                  <td><img src="https://cdn.nba.com/headshots/nba/latest/1040x760/203648.png"
+                      alt="image of Thanasis Antetokounmpo"></td>
+                  <td><span class="tooltip">Copy!</span></td>
+                </tr>
+                <tr class="copy">
+                  <td>Juancho Hernangomez</td>
+                  <td class="imageURL">https://cdn.nba.com/headshots/nba/latest/1040x760/1627823.png</td>
+                  <td><img src="https://cdn.nba.com/headshots/nba/latest/1040x760/1627823.png"
+                      alt="image of Juancho Hernangomez"></td>
+                  <td><span class="tooltip">Copy!</span></td>
+                </tr>
+                <tr class="copy">
+                  <td>Willy Hernangomez</td>
+                  <td class="imageURL">https://cdn.nba.com/headshots/nba/latest/1040x760/1626195.png</td>
+                  <td><img src="https://cdn.nba.com/headshots/nba/latest/1040x760/1626195.png"
+                      alt="image of Willy Hernangomez"></td>
+                  <td><span class="tooltip">Copy!</span></td>
+                </tr>
+                <tr class="copy">
+                  <td>Steven Adams</td>
+                  <td class="imageURL">https://cdn.nba.com/headshots/nba/latest/1040x760/203500.png</td>
+                  <td><img src="https://cdn.nba.com/headshots/nba/latest/1040x760/203500.png"
+                      alt="image of Steven Adams"></td>
+                  <td><span class="tooltip">Copy!</span></td>
+                </tr>
+                <tr class="copy">
+                  <td>LaMelo Ball</td>
+                  <td class="imageURL">https://cdn.nba.com/headshots/nba/latest/1040x760/1630163.png</td>
+                  <td><img src="https://cdn.nba.com/headshots/nba/latest/1040x760/1630163.png"
+                      alt="image of LaMelo Ball"></td>
+                  <td><span class="tooltip">Copy!</span></td>
+                </tr>
+                <tr class="copy">
+                  <td>Lonzo Ball</td>
+                  <td class="imageURL">https://cdn.nba.com/headshots/nba/latest/1040x760/1628366.png</td>
+                  <td><img src="https://cdn.nba.com/headshots/nba/latest/1040x760/1628366.png"
+                      alt="image of Lonzo Ball"></td>
+                  <td><span class="tooltip">Copy!</span></td>
+                </tr>
+                <tr class="copy">
+                  <td>Bradley Beal</td>
+                  <td class="imageURL">https://cdn.nba.com/headshots/nba/latest/1040x760/203078.png</td>
+                  <td><img src="https://cdn.nba.com/headshots/nba/latest/1040x760/203078.png"
+                      alt="image of Bradley Beal"></td>
+                  <td><span class="tooltip">Copy!</span></td>
+                </tr>
+              </table>
+              </p>
+            </div>
+            <div class="doc-examples">
+              <section>
+                <h5>Contact</h5>
+                <p> Zeke Van Dehy
+                  <br />
+                  <a href="mailto:evandehy@uncc.edu">evandehy@uncc.edu</a>
+                </p>
+                <h5>License</h5>
+                <p> Apache 2.0
+                  <br />
+                  <a
+                    href="https://www.apache.org/licenses/LICENSE-2.0.html">https://www.apache.org/licenses/LICENSE-2.0.html</a>
+                </p>
+                <h5>API Endpoints</h5>
+                <pre><code>Production:
+http://localhost:8080/query
+</code></pre>
+              </section>
+            </div>
+          </div>
+        </div>
+        <h1 id="tag-Queries" class="swagger-summary-tag tag-name" data-traverse-target="tag-Queries">Queries</h1>
+        <div id="operation-facelist-Queries" class="operation panel" data-traverse-target="operation-facelist-Queries">
+          <h2 class="operation-name "> <code>facelist</code> </h2>
+          <div class="doc-row">
+            <div class="doc-copy">
+              <section class="swagger-operation-description operation-description"> Get the FaceList with the specified
+                FaceListID. </section>
+            </div>
+          </div>
+          <div class="doc-row">
+            <div class="doc-copy">
+              <section class="swagger-request-body"> </section>
+              <section class="swagger-responses"> Returns a
+                <a href="#definition-FaceList"><code>FaceList!</code></a>
+              </section>
+              <br>
+              <section class="swagger-request-params">
+                <table>
+                  <tr>
+                    <th>Name</th>
+                    <th>Description</th>
+                  </tr>
+                  <tr>
+                    <td><code>FaceListID</code> -
+                      <a href="#definition-String"><code>String!</code></a>
+                    </td>
+                    <td> The user-specified ID that uniquely identifies this FaceList. </td>
+                  </tr>
+                </table>
+              </section>
+            </div>
+            <div class="doc-examples">
+              <section>
+                <h4>Example</h4>
+                <h5>Query</h5>
+                <html>
+
+                <head></head>
+
+                <body>
+                  <pre><code class="hljs language-gql"><span class="hljs-symbol"><span class="hljs-keyword">query</span> facelist<span class="hljs-tag">(<span class="hljs-type">$FaceListID:</span><span class="hljs-type"> String!</span>)</span> <span class="hljs-tag">{
+  <span class="hljs-symbol">facelist<span class="hljs-tag">(FaceListID: <span class="hljs-type">$FaceListID)</span> {
+   <span class="hljs-type"> FaceListID
+</span>   <span class="hljs-type"> Name
+</span>   <span class="hljs-type"> Faces
+</span>  }
+}</span></span></span></span>
+</code></pre>
+                </body>
+
+                </html>
+                <h5>Variables</h5>
+                <html>
+
+                <head></head>
+
+                <body>
+                  <pre><code class="hljs language-json">{<span class="hljs-attr">"FaceListID"</span>: <span class="hljs-string">"abc123"</span>}
+</code></pre>
+                </body>
+
+                </html>
+              </section>
+            </div>
+          </div>
+          <div class="doc-row">
+            <div class="doc-copy"> </div>
+            <div class="doc-examples">
+              <section>
+                <h5>Response </h5>
+                <html>
+
+                <head></head>
+
+                <body>
+                  <pre><code class="hljs language-json">{
+  <span class="hljs-attr">"data"</span>: {
+    <span class="hljs-attr">"facelist"</span>: {<span class="hljs-attr">"FaceListID"</span>: <span class="hljs-string">"abc123"</span>, <span class="hljs-attr">"Name"</span>: <span class="hljs-string">"xyz789"</span>, <span class="hljs-attr">"Faces"</span>: [<span class="hljs-string">"xyz789"</span>]}
+  }
+}
+</code></pre>
+                  <p><span class="playground" onclick="tryItNow('facelist')">Try it now!</span></p>
+                </body>
+
+                </html>
+              </section>
+            </div>
+          </div>
+        </div>
+        <div id="operation-faces-Queries" class="operation panel" data-traverse-target="operation-faces-Queries">
+          <!-- <section class="operation-tags row"> -->
+          <!-- <div class="doc-copy"> -->
+          <div class="operation-tags">
+            <a class="label" href="#tag-Queries">Queries</a>
+            <!---->
+          </div>
+          <!-- </div> -->
+          <!-- </section> -->
+          <h2 class="operation-name "> <code>faces</code> </h2>
+          <div class="doc-row">
+            <div class="doc-copy">
+              <section class="swagger-operation-description operation-description">
+                <p>Given the url of an image, return all of the detected faces in the image. These faces and their given
+                  faceIDs and attributes are
+                  <em>temporary</em>. To save a permanent face (no image is saved), create a FaceList and add a face to
+                  it.
+                </p>
+                <p>Images should be JPEG, PNG, GIF (first frame), or BMP format.</p>
+                <p>For most accurate results, images should be oriented so that a face&#39;s eyes are at the top and the
+                  chin is at the bottom.</p>
+                <p>Faces that are between 36x36 pixels and 4096x4096 pixels can be detected, provided that the total
+                  image size is proportional. For example, a minimum face size of 36x36 can be detected in a 1920x1080px
+                  image, but larger images will have a larger minimum face size.</p>
+                <p>Faces are less detectable if:</p>
+                <ul>
+                  <li>the image has extreme lighting</li>
+                  <li>the face (and/or eyes) is obstructed</li>
+                  <li>the face has unusual hair type or facial hair</li>
+                  <li>the face has extreme expressions</li>
+                </ul>
+              </section>
+            </div>
+          </div>
+          <div class="doc-row">
+            <div class="doc-copy">
+              <section class="swagger-request-body"> </section>
+              <section class="swagger-responses"> Returns
+                <a href="#definition-DetectedFace"><code>[DetectedFace!]!</code></a>
+              </section>
+              <br>
+              <section class="swagger-request-params">
+                <table>
+                  <tr>
+                    <th>Name</th>
+                    <th>Description</th>
+                  </tr>
+                  <tr>
+                    <td><code>url</code> -
+                      <a href="#definition-String"><code>String!</code></a>
+                    </td>
+                    <td> A URL of an image with 1 or more detectable faces </td>
+                  </tr>
+                </table>
+              </section>
+            </div>
+            <div class="doc-examples">
+              <section>
+                <h4>Example</h4>
+                <h5>Query</h5>
+                <html>
+
+                <head></head>
+
+                <body>
+                  <pre><code class="hljs language-gql"><span class="hljs-symbol"><span class="hljs-keyword">query</span> faces<span class="hljs-tag">(<span class="hljs-code">$url</span>:<span class="hljs-type"> String!</span>)</span> <span class="hljs-tag">{
+  <span class="hljs-symbol">faces<span class="hljs-tag">(url: <span class="hljs-code">$url</span>)</span> <span class="hljs-tag">{
+    <span class="hljs-symbol">FaceID</span>
+    <span class="hljs-symbol">FaceRectangle <span class="hljs-tag">{
+      <span class="hljs-type">...RectangleFragment</span>
+    }</span></span>
+    <span class="hljs-symbol">FaceLandmarks <span class="hljs-tag">{
+      <span class="hljs-type">...LandmarksFragment</span>
+    }</span></span>
+    <span class="hljs-symbol">FaceAttributes <span class="hljs-tag">{
+      <span class="hljs-type">...AttributesFragment</span>
+    }</span></span>
+  }</span></span>
+}</span></span>
+</code></pre>
+                </body>
+
+                </html>
+                <h5>Variables</h5>
+                <html>
+
+                <head></head>
+
+                <body>
+                  <pre><code class="hljs language-json">{<span class="hljs-attr">"url"</span>: <span class="hljs-string">"xyz789"</span>}
+</code></pre>
+                </body>
+
+                </html>
+              </section>
+            </div>
+          </div>
+          <div class="doc-row">
+            <div class="doc-copy"> </div>
+            <div class="doc-examples">
+              <section>
+                <h5>Response </h5>
+                <html>
+
+                <head></head>
+
+                <body>
+                  <pre><code class="hljs language-json">{
+  <span class="hljs-attr">"data"</span>: {
+    <span class="hljs-attr">"faces"</span>: [
+      {
+        <span class="hljs-attr">"FaceID"</span>: <span class="hljs-string">"abc123"</span>,
+        <span class="hljs-attr">"FaceRectangle"</span>: <span class="hljs-string">Rectangle</span>,
+        <span class="hljs-attr">"FaceLandmarks"</span>: <span class="hljs-string">Landmarks</span>,
+        <span class="hljs-attr">"FaceAttributes"</span>: <span class="hljs-string">Attributes</span>
+      }
+    ]
+  }
+}
+</code></pre>
+                  <p><span class="playground" onclick="tryItNow('faces')">Try it now!</span></p>
+                </body>
+</body>
+
+</html>
+</section>
+</div>
+</div>
+</div>
+<div id="operation-findsimilarface-Queries" class="operation panel"
+  data-traverse-target="operation-findsimilarface-Queries">
+  <!-- <section class="operation-tags row"> -->
+  <!-- <div class="doc-copy"> -->
+  <div class="operation-tags">
+    <a class="label" href="#tag-Queries">Queries</a>
+    <!---->
+  </div>
+  <!-- </div> -->
+  <!-- </section> -->
+  <h2 class="operation-name "> <code>findSimilarFace</code> </h2>
+  <div class="doc-row">
+    <div class="doc-copy">
+      <section class="swagger-operation-description operation-description">
+        <p>FindSimilarFace searches the provided FaceList for faces that are similar to the provided ProbeFace.</p>
+        <p>The URL should be an image with only one face. The face will be detected and used to find a similar face in
+          the facelist. Attributes of the detected face will be returned.</p>
+      </section>
+    </div>
+  </div>
+  <div class="doc-row">
+    <div class="doc-copy">
+      <section class="swagger-request-body"> </section>
+      <section class="swagger-responses"> Returns a
+        <a href="#definition-SimilarFaceResponse"><code>SimilarFaceResponse!</code></a>
+      </section>
+      <br>
+      <section class="swagger-request-params">
+        <table>
+          <tr>
+            <th>Name</th>
+            <th>Description</th>
+          </tr>
+          <tr>
+            <td><code>ProbeFaceURL</code> -
+              <a href="#definition-String"><code>String</code></a>
+            </td>
+            <td> The URL of a face to probe for a similar match. </td>
+          </tr>
+          <tr>
+            <td><code>FaceListID</code> -
+              <a href="#definition-String"><code>String!</code></a>
+            </td>
+            <td> The FaceList gallery of faces to find a similar match to the probe face. The FaceListID should be a
+              user created ID using the createFaceList() mutation. </td>
+          </tr>
+        </table>
+      </section>
+    </div>
+    <div class="doc-examples">
+      <section>
+        <h4>Example</h4>
+        <h5>Query</h5>
+        <html>
+
+        <head></head>
+
+        <body>
+          <pre><code class="hljs language-gql"><span class="hljs-symbol"><span class="hljs-keyword">query</span> findSimilarFace<span class="hljs-tag">(<span class="hljs-type">$ProbeFaceURL:</span><span class="hljs-type"> String,</span> <span class="hljs-type">$FaceListID:</span><span class="hljs-type"> String!</span>)</span> <span class="hljs-tag">{
+  <span class="hljs-symbol">findSimilarFace<span class="hljs-tag">(ProbeFaceURL: <span class="hljs-type">$ProbeFaceURL,</span><span class="hljs-type"> FaceListID:</span> <span class="hljs-type">$FaceListID)</span> {
+   <span class="hljs-type"> DetectedFace </span>{
+      ..<span class="hljs-type">.DetectedFaceFragment
+</span>    }
+   <span class="hljs-type"> FaceList </span>{
+      ..<span class="hljs-type">.FaceListFragment
+</span>    }
+   <span class="hljs-type"> SimilarFaces </span>{
+      ..<span class="hljs-type">.SimilarFaceFragment
+</span>    }
+  }
+}</span></span></span></span>
+</code></pre>
+        </body>
+        </body>
+
+        </html>
+        <h5>Variables</h5>
+        <html>
+
+        <head></head>
+
+        <body>
+          <pre><code class="hljs language-json">{<span class="hljs-attr">"ProbeFaceURL"</span>: <span class="hljs-string">"abc123"</span>, <span class="hljs-attr">"FaceListID"</span>: <span class="hljs-string">"abc123"</span>}
+</code></pre>
+        </body>
+
+        </html>
+      </section>
+    </div>
+  </div>
+  <div class="doc-row">
+    <div class="doc-copy"> </div>
+    <div class="doc-examples">
+      <section>
+        <h5>Response </h5>
+        <html>
+
+        <head></head>
+
+        <body>
+          <pre><code class="hljs language-json">{
+  <span class="hljs-attr">"data"</span>: {
+    <span class="hljs-attr">"findSimilarFace"</span>: {
+      <span class="hljs-attr">"DetectedFace"</span>: <span class="hljs-string">DetectedFace</span>,
+      <span class="hljs-attr">"FaceList"</span>: <span class="hljs-string">FaceList</span>,
+      <span class="hljs-attr">"SimilarFaces"</span>: [<span class="hljs-string">SimilarFace</span>]
+    }
+  }
+}
+</code></pre>
+          <p><span class="playground" onclick="tryItNow('findsimilar')">Try it now!</span></p>
+        </body>
+
+        </html>
+      </section>
+    </div>
+  </div>
+</div>
+<h1 id="tag-Mutations" class="swagger-summary-tag tag-name" data-traverse-target="tag-Mutations">Mutations</h1>
+<div id="operation-addfacetolist-Mutations" class="operation panel"
+  data-traverse-target="operation-addfacetolist-Mutations">
+  <h2 class="operation-name "> <code>addFaceToList</code> </h2>
+  <div class="doc-row">
+    <div class="doc-copy">
+      <section class="swagger-operation-description operation-description">
+        <p>Add a face detected from the provided url to the list with the provided FaceListID.</p>
+        <p>Returned: FaceID &amp; FaceList FaceID is the generated unique identifier of the detected and saved Face. You
+          should likely store this value with a name or other information so that you can refer back to what this face
+          represents or where it is from.</p>
+        <p>FaceList is the resulting FaceList the face was saved to.</p>
+        <p>There should only be one face detected in the image.</p>
+      </section>
+    </div>
+  </div>
+  <div class="doc-row">
+    <div class="doc-copy">
+      <section class="swagger-request-body"> </section>
+      <section class="swagger-responses"> Returns a
+        <a href="#definition-FaceResponse"><code>FaceResponse!</code></a>
+      </section>
+      <br>
+      <section class="swagger-request-params">
+        <table>
+          <tr>
+            <th>Name</th>
+            <th>Description</th>
+          </tr>
+          <tr>
+            <td><code>URL</code> -
+              <a href="#definition-String"><code>String!</code></a>
+            </td>
+            <td> URL to an image that contains a single detectable face to be added to the list </td>
+          </tr>
+          <tr>
+            <td><code>FaceListID</code> -
+              <a href="#definition-String"><code>String!</code></a>
+            </td>
+            <td> The user-specified ID that uniquely identifies this FaceList. </td>
+          </tr>
+        </table>
+      </section>
+    </div>
+    <div class="doc-examples">
+      <section>
+        <h4>Example</h4>
+        <h5>Query</h5>
+        <html>
+
+        <head></head>
+
+        <body>
+          <pre><code class="hljs language-gql"><span class="hljs-symbol"><span class="hljs-keyword">mutation</span> addFaceToList<span class="hljs-tag">(<span class="hljs-code">$URL</span>:<span class="hljs-type"> String!</span>, <span class="hljs-type">$FaceListID:</span><span class="hljs-type"> String!</span>)</span> <span class="hljs-tag">{
+  <span class="hljs-symbol">addFaceToList<span class="hljs-tag">(URL: <span class="hljs-code">$URL</span>,<span class="hljs-type"> FaceListID:</span> <span class="hljs-type">$FaceListID)</span> {
+   <span class="hljs-type"> FaceList </span>{
+      ..<span class="hljs-type">.FaceListFragment
+</span>    }
+   <span class="hljs-type"> FaceID
+</span>  }
+}</span></span></span></span>
+</code></pre>
+        </body>
+
+        </html>
+        <h5>Variables</h5>
+        <html>
+
+        <head></head>
+
+        <body>
+          <pre><code class="hljs language-json">{<span class="hljs-attr">"URL"</span>: <span class="hljs-string">"abc123"</span>, <span class="hljs-attr">"FaceListID"</span>: <span class="hljs-string">"xyz789"</span>}
+</code></pre>
+        </body>
+
+        </html>
+      </section>
+    </div>
+  </div>
+  <div class="doc-row">
+    <div class="doc-copy"> </div>
+    <div class="doc-examples">
+      <section>
+        <h5>Response </h5>
+        <html>
+
+        <head></head>
+
+        <body>
+          <pre><code class="hljs language-json">{
+  <span class="hljs-attr">"data"</span>: {
+    <span class="hljs-attr">"addFaceToList"</span>: {
+      <span class="hljs-attr">"FaceList"</span>: <span class="hljs-string">FaceList</span>,
+      <span class="hljs-attr">"FaceID"</span>: <span class="hljs-string">"xyz789"</span>
+    }
+  }
+}
+</code></pre>
+          <p><span class="playground" onclick="tryItNow('addface')">Try it now!</span></p>
+        </body>
+        </body>
+
+        </html>
+      </section>
+    </div>
+  </div>
+</div>
+<div id="operation-createfacelist-Mutations" class="operation panel"
+  data-traverse-target="operation-createfacelist-Mutations">
+  <!-- <section class="operation-tags row"> -->
+  <!-- <div class="doc-copy"> -->
+  <div class="operation-tags">
+    <a class="label" href="#tag-Mutations">Mutations</a>
+    <!---->
+  </div>
+  <!-- </div> -->
+  <!-- </section> -->
+  <h2 class="operation-name "> <code>createFaceList</code> </h2>
+  <div class="doc-row">
+    <div class="doc-copy">
+      <section class="swagger-operation-description operation-description"> Create a FaceList to save persistent faces.
+        FaceLists are used to analyze saved faces and identify similar faces. </section>
+    </div>
+  </div>
+  <div class="doc-row">
+    <div class="doc-copy">
+      <section class="swagger-request-body"> </section>
+      <section class="swagger-responses"> Returns a
+        <a href="#definition-FaceList"><code>FaceList!</code></a>
+      </section>
+      <br>
+      <section class="swagger-request-params">
+        <table>
+          <tr>
+            <th>Name</th>
+            <th>Description</th>
+          </tr>
+          <tr>
+            <td><code>FaceListID</code> -
+              <a href="#definition-String"><code>String!</code></a>
+            </td>
+            <td> A user-specified ID that uniquely identifies this FaceList. The ID must only contain lowercase letters,
+              underscores, and/or numbers. It cannot be equivalent to any other facelist ID. </td>
+          </tr>
+          <tr>
+            <td><code>Name</code> -
+              <a href="#definition-String"><code>String!</code></a>
+            </td>
+            <td> A user-specified Name that does not need to be unique. </td>
+          </tr>
+        </table>
+      </section>
+    </div>
+    <div class="doc-examples">
+      <section>
+        <h4>Example</h4>
+        <h5>Query</h5>
+        <html>
+
+        <head></head>
+
+        <body>
+          <pre><code class="hljs language-gql"><span class="hljs-symbol"><span class="hljs-keyword">mutation</span> createFaceList<span class="hljs-tag">(<span class="hljs-type">$FaceListID:</span><span class="hljs-type"> String!</span>, <span class="hljs-type">$Name:</span><span class="hljs-type"> String!</span>)</span> <span class="hljs-tag">{
+  <span class="hljs-symbol">createFaceList<span class="hljs-tag">(FaceListID: <span class="hljs-type">$FaceListID,</span><span class="hljs-type"> Name:</span> <span class="hljs-type">$Name)</span> {
+   <span class="hljs-type"> FaceListID
+</span>   <span class="hljs-type"> Name
+</span>   <span class="hljs-type"> Faces
+</span>  }
+}</span></span></span></span>
+</code></pre>
+        </body>
+
+        </html>
+        <h5>Variables</h5>
+        <html>
+
+        <head></head>
+
+        <body>
+          <pre><code class="hljs language-json">{<span class="hljs-attr">"FaceListID"</span>: <span class="hljs-string">"xyz789"</span>, <span class="hljs-attr">"Name"</span>: <span class="hljs-string">"xyz789"</span>}
+</code></pre>
+        </body>
+
+        </html>
+      </section>
+    </div>
+  </div>
+  <div class="doc-row">
+    <div class="doc-copy"> </div>
+    <div class="doc-examples">
+      <section>
+        <h5>Response </h5>
+        <html>
+
+        <head></head>
+
+        <body>
+          <pre><code class="hljs language-json">{
+  <span class="hljs-attr">"data"</span>: {
+    <span class="hljs-attr">"createFaceList"</span>: {
+      <span class="hljs-attr">"FaceListID"</span>: <span class="hljs-string">"xyz789"</span>,
+      <span class="hljs-attr">"Name"</span>: <span class="hljs-string">"abc123"</span>,
+      <span class="hljs-attr">"Faces"</span>: [<span class="hljs-string">"abc123"</span>]
+    }
+  }
+}
+</code></pre>
+          <p><span class="playground" onclick="tryItNow('createfacelist')">Try it now!</span></p>
+        </body>
+        </body>
+
+        </html>
+      </section>
+    </div>
+  </div>
+</div>
+<div id="operation-deletefacefromlist-Mutations" class="operation panel"
+  data-traverse-target="operation-deletefacefromlist-Mutations">
+  <!-- <section class="operation-tags row"> -->
+  <!-- <div class="doc-copy"> -->
+  <div class="operation-tags">
+    <a class="label" href="#tag-Mutations">Mutations</a>
+    <!---->
+  </div>
+  <!-- </div> -->
+  <!-- </section> -->
+  <h2 class="operation-name "> <code>deleteFaceFromList</code> </h2>
+  <div class="doc-row">
+    <div class="doc-copy">
+      <section class="swagger-operation-description operation-description">
+        <p>Delete a face from a FaceList using the specified FaceID and FaceListID.</p>
+        <p>Returned: FaceID &amp; FaceList FaceID is the unique identifier of the deleted Face.</p>
+        <p>FaceList is the resulting FaceList after the face was deleted.</p>
+      </section>
+    </div>
+  </div>
+  <div class="doc-row">
+    <div class="doc-copy">
+      <section class="swagger-request-body"> </section>
+      <section class="swagger-responses"> Returns a
+        <a href="#definition-FaceResponse"><code>FaceResponse!</code></a>
+      </section>
+      <br>
+      <section class="swagger-request-params">
+        <table>
+          <tr>
+            <th>Name</th>
+            <th>Description</th>
+          </tr>
+          <tr>
+            <td><code>FaceID</code> -
+              <a href="#definition-String"><code>String!</code></a>
+            </td>
+            <td> The generated FaceID of the face that </td>
+          </tr>
+          <tr>
+            <td><code>FaceListID</code> -
+              <a href="#definition-String"><code>String!</code></a>
+            </td>
+            <td> The user-specified ID that uniquely identifies this FaceList. </td>
+          </tr>
+        </table>
+      </section>
+    </div>
+    <div class="doc-examples">
+      <section>
+        <h4>Example</h4>
+        <h5>Query</h5>
+        <html>
+
+        <head></head>
+
+        <body>
+          <pre><code class="hljs language-gql"><span class="hljs-symbol"><span class="hljs-keyword">mutation</span> deleteFaceFromList<span class="hljs-tag">(<span class="hljs-type">$FaceID:</span><span class="hljs-type"> String!</span>, <span class="hljs-type">$FaceListID:</span><span class="hljs-type"> String!</span>)</span> <span class="hljs-tag">{
+  <span class="hljs-symbol">deleteFaceFromList<span class="hljs-tag">(FaceID: <span class="hljs-type">$FaceID,</span><span class="hljs-type"> FaceListID:</span> <span class="hljs-type">$FaceListID)</span> {
+   <span class="hljs-type"> FaceList </span>{
+      ..<span class="hljs-type">.FaceListFragment
+</span>    }
+   <span class="hljs-type"> FaceID
+</span>  }
+}</span></span></span></span>
+</code></pre>
+        </body>
+        </body>
+
+        </html>
+        <h5>Variables</h5>
+        <html>
+
+        <head></head>
+
+        <body>
+          <pre><code class="hljs language-json">{<span class="hljs-attr">"FaceID"</span>: <span class="hljs-string">"xyz789"</span>, <span class="hljs-attr">"FaceListID"</span>: <span class="hljs-string">"xyz789"</span>}
+</code></pre>
+        </body>
+
+        </html>
+      </section>
+    </div>
+  </div>
+  <div class="doc-row">
+    <div class="doc-copy"> </div>
+    <div class="doc-examples">
+      <section>
+        <h5>Response </h5>
+        <html>
+
+        <head></head>
+
+        <body>
+          <pre><code class="hljs language-json">{
+  <span class="hljs-attr">"data"</span>: {
+    <span class="hljs-attr">"deleteFaceFromList"</span>: {
+      <span class="hljs-attr">"FaceList"</span>: <span class="hljs-string">FaceList</span>,
+      <span class="hljs-attr">"FaceID"</span>: <span class="hljs-string">"xyz789"</span>
+    }
+  }
+}
+</code></pre><p><span class="playground" onclick="tryItNow('deleteface')">Try it now!</span></p>
+        </body>
+
+        </html>
+      </section>
+    </div>
+  </div>
+</div>
+<div id="operation-deletefacelist-Mutations" class="operation panel"
+  data-traverse-target="operation-deletefacelist-Mutations">
+  <!-- <section class="operation-tags row"> -->
+  <!-- <div class="doc-copy"> -->
+  <div class="operation-tags">
+    <a class="label" href="#tag-Mutations">Mutations</a>
+    <!---->
+  </div>
+  <!-- </div> -->
+  <!-- </section> -->
+  <h2 class="operation-name "> <code>deleteFaceList</code> </h2>
+  <div class="doc-row">
+    <div class="doc-copy">
+      <section class="swagger-operation-description operation-description"> Delete a FaceList and all of its saved
+        Faces. </section>
+    </div>
+  </div>
+  <div class="doc-row">
+    <div class="doc-copy">
+      <section class="swagger-request-body"> </section>
+      <section class="swagger-responses"> Returns a
+        <a href="#definition-FaceList"><code>FaceList!</code></a>
+      </section>
+      <br>
+      <section class="swagger-request-params">
+        <table>
+          <tr>
+            <th>Name</th>
+            <th>Description</th>
+          </tr>
+          <tr>
+            <td><code>FaceListID</code> -
+              <a href="#definition-String"><code>String!</code></a>
+            </td>
+            <td> The user-specified ID that uniquely identifies this FaceList. </td>
+          </tr>
+        </table>
+      </section>
+    </div>
+    <div class="doc-examples">
+      <section>
+        <h4>Example</h4>
+        <h5>Query</h5>
+        <html>
+
+        <head></head>
+
+        <body>
+          <pre><code class="hljs language-gql"><span class="hljs-symbol"><span class="hljs-keyword">mutation</span> deleteFaceList<span class="hljs-tag">(<span class="hljs-type">$FaceListID:</span><span class="hljs-type"> String!</span>)</span> <span class="hljs-tag">{
+  <span class="hljs-symbol">deleteFaceList<span class="hljs-tag">(FaceListID: <span class="hljs-type">$FaceListID)</span> {
+   <span class="hljs-type"> FaceListID
+</span>   <span class="hljs-type"> Name
+</span>   <span class="hljs-type"> Faces
+</span>  }
+}</span></span></span></span>
+</code></pre>
+        </body>
+        </body>
+
+        </html>
+        <h5>Variables</h5>
+        <html>
+
+        <head></head>
+
+        <body>
+          <pre><code class="hljs language-json">{<span class="hljs-attr">"FaceListID"</span>: <span class="hljs-string">"abc123"</span>}
+</code></pre>
+        </body>
+
+        </html>
+      </section>
+    </div>
+  </div>
+  <div class="doc-row">
+    <div class="doc-copy"> </div>
+    <div class="doc-examples">
+      <section>
+        <h5>Response </h5>
+        <html>
+
+        <head></head>
+
+        <body>
+          <pre><code class="hljs language-json">{
+  <span class="hljs-attr">"data"</span>: {
+    <span class="hljs-attr">"deleteFaceList"</span>: {
+      <span class="hljs-attr">"FaceListID"</span>: <span class="hljs-string">"xyz789"</span>,
+      <span class="hljs-attr">"Name"</span>: <span class="hljs-string">"abc123"</span>,
+      <span class="hljs-attr">"Faces"</span>: [<span class="hljs-string">"xyz789"</span>]
+    }
+  }
+}
+</code></pre>
+          <p><span class="playground" onclick="tryItNow('deletefacelist')">Try it now!</span></p>
+        </body>
+
+        </html>
+      </section>
+    </div>
+  </div>
+</div>
+<span id="tag-types"></span>
+<h1>Types</h1>
+<div id="definition-Attributes" class="definition panel" data-traverse-target="definition-Attributes">
+  <h2 class="panel-title">
+    <a name="/definitions/Attributes"></a>
+    <p><code>Attributes</code></p>
+  </h2>
+  <div class="doc-row">
+    <div class="doc-copy">
+      <section class="json-schema-description">
+        <p>Attributes of the detected face</p>
+      </section>
+      <section class="json-schema-properties-blank">
+        <table>
+          <tr>
+            <th>Field Name</th>
+            <th>Description</th>
+          </tr>
+          <tr>
+            <td data-property-name="Age"> <code>Age</code> -
+              <a href="#definition-Float"><code>Float</code></a>
+            </td>
+            <td> Estimated age of the detected face in years. </td>
+          </tr>
+          <tr>
+            <td data-property-name="Gender"> <code>Gender</code> -
+              <a href="#definition-String"><code>String</code></a>
+            </td>
+            <td> Predicted gender of the detected face is "female" or "male". </td>
+          </tr>
+          <tr>
+            <td data-property-name="Smile"> <code>Smile</code> -
+              <a href="#definition-Float"><code>Float</code></a>
+            </td>
+            <td> Estimated smile intensity of the detected face where 0 is no smile and 1 is a strong smile. </td>
+          </tr>
+          <tr>
+            <td data-property-name="Moustache"> <code>Moustache</code> -
+              <a href="#definition-Float"><code>Float</code></a>
+            </td>
+            <td> Estimated length of the moustache on the detected face where 0 is no moustache and 1 is a very long
+              moustache. </td>
+          </tr>
+          <tr>
+            <td data-property-name="Beard"> <code>Beard</code> -
+              <a href="#definition-Float"><code>Float</code></a>
+            </td>
+            <td> Estimated length of the beard on the detected face where 0 is no beard and 1 is a very long beard.
+            </td>
+          </tr>
+          <tr>
+            <td data-property-name="Sideburns"> <code>Sideburns</code> -
+              <a href="#definition-Float"><code>Float</code></a>
+            </td>
+            <td> Estimated length of the sideburns on the detected face where 0 is no sideburns and 1 is very long
+              sideburns. </td>
+          </tr>
+          <tr>
+            <td data-property-name="Glasses"> <code>Glasses</code> -
+              <a href="#definition-String"><code>String</code></a>
+            </td>
+            <td> Predicted type of glasses on the detected face. Values could be "NoGlasses", "ReadingGlasses",
+              "Sunglasses", or "SwimmingGoggles". </td>
+          </tr>
+          <tr>
+            <td data-property-name="Emotion"> <code>Emotion</code> -
+              <a href="#definition-Emotion"><code>Emotion</code></a>
+            </td>
+            <td> The intensity of each type of emotion that can be detected on the face. Values range between [0,1]
+              where 0 is no emotion and 1 is an intense emotion. </td>
+          </tr>
+          <tr>
+            <td data-property-name="HairColor"> <code>HairColor</code> -
+              <a href="#definition-String"><code>String</code></a>
+            </td>
+            <td>
+              <p>Highest confidence hair color of the detected face. If the color cannot be detected, the hair is
+                &quot;invisible&quot;, or the individual is likely &quot;bald&quot; then the returned color is
+                &quot;Unknown&quot;.</p>
+              <p>A detected hair color could be &quot;black&quot;, &quot;blond&quot;, &quot;brown&quot;,
+                &quot;gray&quot;, &quot;red&quot;, &quot;white&quot;, or &quot;other&quot;.</p>
+            </td>
+          </tr>
+          <tr>
+            <td data-property-name="EyeMakeup"> <code>EyeMakeup</code> -
+              <a href="#definition-Boolean"><code>Boolean</code></a>
+            </td>
+            <td> EyeMakeup predicts if the detected face is wearing eye makeup (true) or not (false). </td>
+          </tr>
+          <tr>
+            <td data-property-name="LipMakeup"> <code>LipMakeup</code> -
+              <a href="#definition-Boolean"><code>Boolean</code></a>
+            </td>
+            <td> LipMakeup predicts if the detected face is wearing lipstick (true) or not (false). </td>
+          </tr>
+          <tr>
+            <td data-property-name="Accessories"> <code>Accessories</code> -
+              <a href="#definition-String"><code>[String]</code></a>
+            </td>
+            <td> Accessories around the detected face, including 'headwear', 'glasses' and 'mask'. Empty array means no
+              accessories detected. Note this is after a face is detected. Large mask could result in no face to be
+              detected. </td>
+          </tr>
+          <tr>
+            <td data-property-name="Blur"> <code>Blur</code> -
+              <a href="#definition-Float"><code>Float</code></a>
+            </td>
+            <td> Blur is a value between [0,1] that indicates the blurriness of a detected face where 0 is not blurry
+              and 1 is very blurry. </td>
+          </tr>
+          <tr>
+            <td data-property-name="Exposure"> <code>Exposure</code> -
+              <a href="#definition-Float"><code>Float</code></a>
+            </td>
+            <td> Exposure is a value between [0,1] that indicates the exposure of a detected face where values close to
+              0 indicate underexposure and values closer to 1 indicate overexposure. Values close to .5 indicate good
+              exposure. </td>
+          </tr>
+          <tr>
+            <td data-property-name="Noise"> <code>Noise</code> -
+              <a href="#definition-Float"><code>Float</code></a>
+            </td>
+            <td> Noise indicates how noisy the detected face image is where 0 is no noise and 1 is very noisy. </td>
+          </tr>
+        </table>
+      </section>
+    </div>
+    <div class="doc-examples">
+      <section>
+        <h5>Example</h5>
+        <html>
+
+        <head></head>
+
+        <body>
+          <pre><code class="hljs language-json">{
+  <span class="hljs-attr">"Age"</span>: <span class="hljs-number">987.65</span>,
+  <span class="hljs-attr">"Gender"</span>: <span class="hljs-string">"abc123"</span>,
+  <span class="hljs-attr">"Smile"</span>: <span class="hljs-number">987.65</span>,
+  <span class="hljs-attr">"Moustache"</span>: <span class="hljs-number">123.45</span>,
+  <span class="hljs-attr">"Beard"</span>: <span class="hljs-number">123.45</span>,
+  <span class="hljs-attr">"Sideburns"</span>: <span class="hljs-number">987.65</span>,
+  <span class="hljs-attr">"Glasses"</span>: <span class="hljs-string">"xyz789"</span>,
+  <span class="hljs-attr">"Emotion"</span>: <span class="hljs-string">Emotion</span>,
+  <span class="hljs-attr">"HairColor"</span>: <span class="hljs-string">"xyz789"</span>,
+  <span class="hljs-attr">"EyeMakeup"</span>: <span class="hljs-literal">false</span>,
+  <span class="hljs-attr">"LipMakeup"</span>: <span class="hljs-literal">false</span>,
+  <span class="hljs-attr">"Accessories"</span>: [<span class="hljs-string">"abc123"</span>],
+  <span class="hljs-attr">"Blur"</span>: <span class="hljs-number">123.45</span>,
+  <span class="hljs-attr">"Exposure"</span>: <span class="hljs-number">123.45</span>,
+  <span class="hljs-attr">"Noise"</span>: <span class="hljs-number">987.65</span>
+}
+</code></pre>
+        </body>
+
+        </html>
+      </section>
+    </div>
+  </div>
+</div>
+<div id="definition-Boolean" class="definition panel" data-traverse-target="definition-Boolean">
+  <div class="definition-tags">
+    <a class="label" href="#tag-types">Types</a>
+  </div>
+  <h2 class="panel-title">
+    <a name="/definitions/Boolean"></a>
+    <p><code>Boolean</code></p>
+  </h2>
+  <div class="doc-row">
+    <div class="doc-copy">
+      <section class="json-schema-description">
+        <p>The <code>Boolean</code> scalar type represents <code>true</code> or <code>false</code>.</p>
+      </section>
+    </div>
+    <div class="doc-examples">
+      <section>
+        <h5>Example</h5>
+        <html>
+
+        <head></head>
+
+        <body>
+          <pre><code class="hljs language-gql"><span class="hljs-symbol"><span class="hljs-literal">false</span></span>
+</code></pre>
+        </body>
+
+        </html>
+      </section>
+    </div>
+  </div>
+</div>
+<div id="definition-Coordinate" class="definition panel" data-traverse-target="definition-Coordinate">
+  <div class="definition-tags">
+    <a class="label" href="#tag-types">Types</a>
+  </div>
+  <h2 class="panel-title">
+    <a name="/definitions/Coordinate"></a>
+    <p><code>Coordinate</code></p>
+  </h2>
+  <div class="doc-row">
+    <div class="doc-copy">
+      <section class="json-schema-description">
+        <p>Coordinates (X,Y) of the specified Landmark</p>
+      </section>
+      <section class="json-schema-properties-blank">
+        <table>
+          <tr>
+            <th>Field Name</th>
+            <th>Description</th>
+          </tr>
+          <tr>
+            <td data-property-name="X"> <code>X</code> -
+              <a href="#definition-Float"><code>Float!</code></a>
+            </td>
+            <td> x-coordinate </td>
+          </tr>
+          <tr>
+            <td data-property-name="Y"> <code>Y</code> -
+              <a href="#definition-Float"><code>Float!</code></a>
+            </td>
+            <td> y-coordinate </td>
+          </tr>
+        </table>
+      </section>
+    </div>
+    <div class="doc-examples">
+      <section>
+        <h5>Example</h5>
+        <html>
+
+        <head></head>
+
+        <body>
+          <pre><code class="hljs language-json">{<span class="hljs-attr">"X"</span>: <span class="hljs-number">987.65</span>, <span class="hljs-attr">"Y"</span>: <span class="hljs-number">123.45</span>}
+</code></pre>
+        </body>
+
+        </html>
+      </section>
+    </div>
+  </div>
+</div>
+<div id="definition-DetectedFace" class="definition panel" data-traverse-target="definition-DetectedFace">
+  <div class="definition-tags">
+    <a class="label" href="#tag-types">Types</a>
+  </div>
+  <h2 class="panel-title">
+    <a name="/definitions/DetectedFace"></a>
+    <p><code>DetectedFace</code></p>
+  </h2>
+  <div class="doc-row">
+    <div class="doc-copy">
+      <section class="json-schema-description">
+        <p>A face detected in an image with details about the face features/attributes and 2-dimensional position.</p>
+      </section>
+      <section class="json-schema-properties-blank">
+        <table>
+          <tr>
+            <th>Field Name</th>
+            <th>Description</th>
+          </tr>
+          <tr>
+            <td data-property-name="FaceID"> <code>FaceID</code> -
+              <a href="#definition-String"><code>String!</code></a>
+            </td>
+            <td> DetectedFace in the provided image has a unique FaceID uuid </td>
+          </tr>
+          <tr>
+            <td data-property-name="FaceRectangle"> <code>FaceRectangle</code> -
+              <a href="#definition-Rectangle"><code>Rectangle!</code></a>
+            </td>
+            <td> A rectangle can be drawn around the detected face using FaceRectangle information. </td>
+          </tr>
+          <tr>
+            <td data-property-name="FaceLandmarks"> <code>FaceLandmarks</code> -
+              <a href="#definition-Landmarks"><code>Landmarks!</code></a>
+            </td>
+            <td> Face features like eyes, nose, and mouth, can be pinpointed using FaceLandmarks. </td>
+          </tr>
+          <tr>
+            <td data-property-name="FaceAttributes"> <code>FaceAttributes</code> -
+              <a href="#definition-Attributes"><code>Attributes!</code></a>
+            </td>
+            <td> Attributes of the face like hair, emotion, gender, etc. can be found in FaceAttributes. </td>
+          </tr>
+        </table>
+      </section>
+    </div>
+    <div class="doc-examples">
+      <section>
+        <h5>Example</h5>
+        <html>
+
+        <head></head>
+
+        <body>
+          <pre><code class="hljs language-json">{
+  <span class="hljs-attr">"FaceID"</span>: <span class="hljs-string">"xyz789"</span>,
+  <span class="hljs-attr">"FaceRectangle"</span>: <span class="hljs-string">Rectangle</span>,
+  <span class="hljs-attr">"FaceLandmarks"</span>: <span class="hljs-string">Landmarks</span>,
+  <span class="hljs-attr">"FaceAttributes"</span>: <span class="hljs-string">Attributes</span>
+}
+</code></pre>
+        </body>
+
+        </html>
+      </section>
+    </div>
+  </div>
+</div>
+<div id="definition-Emotion" class="definition panel" data-traverse-target="definition-Emotion">
+  <div class="definition-tags">
+    <a class="label" href="#tag-types">Types</a>
+  </div>
+  <h2 class="panel-title">
+    <a name="/definitions/Emotion"></a>
+    <p><code>Emotion</code></p>
+  </h2>
+  <div class="doc-row">
+    <div class="doc-copy">
+      <section class="json-schema-description">
+        <p>Each Emotion is a value between 0 and 1 that indicates the confidence that the detected Face is showing the
+          specified Emotion.</p>
+        <p>0 indicates the Emotion is absent and 1 indicates the Emotion is intense.</p>
+      </section>
+      <section class="json-schema-properties-blank">
+        <table>
+          <tr>
+            <th>Field Name</th>
+            <th>Description</th>
+          </tr>
+          <tr>
+            <td data-property-name="Anger"> <code>Anger</code> -
+              <a href="#definition-Float"><code>Float!</code></a>
+            </td>
+            <td> </td>
+          </tr>
+          <tr>
+            <td data-property-name="Contempt"> <code>Contempt</code> -
+              <a href="#definition-Float"><code>Float!</code></a>
+            </td>
+            <td> </td>
+          </tr>
+          <tr>
+            <td data-property-name="Disgust"> <code>Disgust</code> -
+              <a href="#definition-Float"><code>Float!</code></a>
+            </td>
+            <td> </td>
+          </tr>
+          <tr>
+            <td data-property-name="Fear"> <code>Fear</code> -
+              <a href="#definition-Float"><code>Float!</code></a>
+            </td>
+            <td> </td>
+          </tr>
+          <tr>
+            <td data-property-name="Happiness"> <code>Happiness</code> -
+              <a href="#definition-Float"><code>Float!</code></a>
+            </td>
+            <td> </td>
+          </tr>
+          <tr>
+            <td data-property-name="Neutral"> <code>Neutral</code> -
+              <a href="#definition-Float"><code>Float!</code></a>
+            </td>
+            <td> </td>
+          </tr>
+          <tr>
+            <td data-property-name="Sadness"> <code>Sadness</code> -
+              <a href="#definition-Float"><code>Float!</code></a>
+            </td>
+            <td> </td>
+          </tr>
+          <tr>
+            <td data-property-name="Surprise"> <code>Surprise</code> -
+              <a href="#definition-Float"><code>Float!</code></a>
+            </td>
+            <td> </td>
+          </tr>
+        </table>
+      </section>
+    </div>
+    <div class="doc-examples">
+      <section>
+        <h5>Example</h5>
+        <html>
+
+        <head></head>
+
+        <body>
+          <pre><code class="hljs language-json">{
+  <span class="hljs-attr">"Anger"</span>: <span class="hljs-number">987.65</span>,
+  <span class="hljs-attr">"Contempt"</span>: <span class="hljs-number">987.65</span>,
+  <span class="hljs-attr">"Disgust"</span>: <span class="hljs-number">123.45</span>,
+  <span class="hljs-attr">"Fear"</span>: <span class="hljs-number">123.45</span>,
+  <span class="hljs-attr">"Happiness"</span>: <span class="hljs-number">987.65</span>,
+  <span class="hljs-attr">"Neutral"</span>: <span class="hljs-number">123.45</span>,
+  <span class="hljs-attr">"Sadness"</span>: <span class="hljs-number">123.45</span>,
+  <span class="hljs-attr">"Surprise"</span>: <span class="hljs-number">123.45</span>
+}
+</code></pre>
+        </body>
+
+        </html>
+      </section>
+    </div>
+  </div>
+</div>
+<div id="definition-FaceList" class="definition panel" data-traverse-target="definition-FaceList">
+  <div class="definition-tags">
+    <a class="label" href="#tag-types">Types</a>
+  </div>
+  <h2 class="panel-title">
+    <a name="/definitions/FaceList"></a>
+    <p><code>FaceList</code></p>
+  </h2>
+  <div class="doc-row">
+    <div class="doc-copy">
+      <section class="json-schema-properties-blank">
+        <table>
+          <tr>
+            <th>Field Name</th>
+            <th>Description</th>
+          </tr>
+          <tr>
+            <td data-property-name="FaceListID"> <code>FaceListID</code> -
+              <a href="#definition-String"><code>String!</code></a>
+            </td>
+            <td> Provided ID of the FaceList </td>
+          </tr>
+          <tr>
+            <td data-property-name="Name"> <code>Name</code> -
+              <a href="#definition-String"><code>String!</code></a>
+            </td>
+            <td> Provided Name of the FaceList </td>
+          </tr>
+          <tr>
+            <td data-property-name="Faces"> <code>Faces</code> -
+              <a href="#definition-String"><code>[String!]</code></a>
+            </td>
+            <td> Persistent FaceIDs saved to the specified FaceList. </td>
+          </tr>
+        </table>
+      </section>
+    </div>
+    <div class="doc-examples">
+      <section>
+        <h5>Example</h5>
+        <html>
+
+        <head></head>
+
+        <body>
+          <pre><code class="hljs language-json">{<span class="hljs-attr">"FaceListID"</span>: <span class="hljs-string">"xyz789"</span>, <span class="hljs-attr">"Name"</span>: <span class="hljs-string">"abc123"</span>, <span class="hljs-attr">"Faces"</span>: [<span class="hljs-string">"xyz789"</span>]}
+</code></pre>
+        </body>
+
+        </html>
+      </section>
+    </div>
+  </div>
+</div>
+<div id="definition-FaceResponse" class="definition panel" data-traverse-target="definition-FaceResponse">
+  <div class="definition-tags">
+    <a class="label" href="#tag-types">Types</a>
+  </div>
+  <h2 class="panel-title">
+    <a name="/definitions/FaceResponse"></a>
+    <p><code>FaceResponse</code></p>
+  </h2>
+  <div class="doc-row">
+    <div class="doc-copy">
+      <section class="json-schema-description">
+        <p>Response data structure for the resulting FaceList after completing the mutation with the provided FaceID.
+        </p>
+      </section>
+      <section class="json-schema-properties-blank">
+        <table>
+          <tr>
+            <th>Field Name</th>
+            <th>Description</th>
+          </tr>
+          <tr>
+            <td data-property-name="FaceList"> <code>FaceList</code> -
+              <a href="#definition-FaceList"><code>FaceList!</code></a>
+            </td>
+            <td> The FaceList that contains (or contained) this Face </td>
+          </tr>
+          <tr>
+            <td data-property-name="FaceID"> <code>FaceID</code> -
+              <a href="#definition-String"><code>String!</code></a>
+            </td>
+            <td> The generated unique ID of the detected Face </td>
+          </tr>
+        </table>
+      </section>
+    </div>
+    <div class="doc-examples">
+      <section>
+        <h5>Example</h5>
+        <html>
+
+        <head></head>
+
+        <body>
+          <pre><code class="hljs language-json">{<span class="hljs-attr">"FaceList"</span>: <span class="hljs-string">FaceList</span>, <span class="hljs-attr">"FaceID"</span>: <span class="hljs-string">"xyz789"</span>}
+</code></pre>
+        </body>
+
+        </html>
+      </section>
+    </div>
+  </div>
+</div>
+<div id="definition-Float" class="definition panel" data-traverse-target="definition-Float">
+  <div class="definition-tags">
+    <a class="label" href="#tag-types">Types</a>
+  </div>
+  <h2 class="panel-title">
+    <a name="/definitions/Float"></a>
+    <p><code>Float</code></p>
+  </h2>
+  <div class="doc-row">
+    <div class="doc-copy">
+      <section class="json-schema-description">
+        <p>The <code>Float</code> scalar type represents signed double-precision fractional values as specified by
+          <a href="https://en.wikipedia.org/wiki/IEEE_floating_point">IEEE 754</a>.
+        </p>
+      </section>
+    </div>
+    <div class="doc-examples">
+      <section>
+        <h5>Example</h5>
+        <html>
+
+        <head></head>
+
+        <body>
+          <pre><code class="hljs language-gql"><span class="hljs-symbol">987.65</span>
+</code></pre>
+        </body>
+
+        </html>
+      </section>
+    </div>
+  </div>
+</div>
+<div id="definition-Int" class="definition panel" data-traverse-target="definition-Int">
+  <div class="definition-tags">
+    <a class="label" href="#tag-types">Types</a>
+  </div>
+  <h2 class="panel-title">
+    <a name="/definitions/Int"></a>
+    <p><code>Int</code></p>
+  </h2>
+  <div class="doc-row">
+    <div class="doc-copy">
+      <section class="json-schema-description">
+        <p>The <code>Int</code> scalar type represents non-fractional signed whole numeric values. Int can represent
+          values between -(2^31) and 2^31 - 1.</p>
+      </section>
+    </div>
+    <div class="doc-examples">
+      <section>
+        <h5>Example</h5>
+        <html>
+
+        <head></head>
+
+        <body>
+          <pre><code class="hljs language-gql"><span class="hljs-symbol">987</span>
+</code></pre>
+        </body>
+
+        </html>
+      </section>
+    </div>
+  </div>
+</div>
+<div id="definition-Landmarks" class="definition panel" data-traverse-target="definition-Landmarks">
+  <div class="definition-tags">
+    <a class="label" href="#tag-types">Types</a>
+  </div>
+  <h2 class="panel-title">
+    <a name="/definitions/Landmarks"></a>
+    <p><code>Landmarks</code></p>
+  </h2>
+  <div class="doc-row">
+    <div class="doc-copy">
+      <section class="json-schema-description">
+        <p>Detected Faces have explicit features related to the positioning of a person&#39;s eyes, mouth, and nose that
+          can be plotted on a 2-dimensional plane.</p>
+      </section>
+      <section class="json-schema-properties-blank">
+        <table>
+          <tr>
+            <th>Field Name</th>
+            <th>Description</th>
+          </tr>
+          <tr>
+            <td data-property-name="PupilLeft"> <code>PupilLeft</code> -
+              <a href="#definition-Coordinate"><code>Coordinate</code></a>
+            </td>
+            <td> </td>
+          </tr>
+          <tr>
+            <td data-property-name="PupilRight"> <code>PupilRight</code> -
+              <a href="#definition-Coordinate"><code>Coordinate</code></a>
+            </td>
+            <td> </td>
+          </tr>
+          <tr>
+            <td data-property-name="NoseTip"> <code>NoseTip</code> -
+              <a href="#definition-Coordinate"><code>Coordinate</code></a>
+            </td>
+            <td> </td>
+          </tr>
+          <tr>
+            <td data-property-name="MouthLeft"> <code>MouthLeft</code> -
+              <a href="#definition-Coordinate"><code>Coordinate</code></a>
+            </td>
+            <td> </td>
+          </tr>
+          <tr>
+            <td data-property-name="MouthRight"> <code>MouthRight</code> -
+              <a href="#definition-Coordinate"><code>Coordinate</code></a>
+            </td>
+            <td> </td>
+          </tr>
+          <tr>
+            <td data-property-name="EyebrowLeftOuter"> <code>EyebrowLeftOuter</code> -
+              <a href="#definition-Coordinate"><code>Coordinate</code></a>
+            </td>
+            <td> </td>
+          </tr>
+          <tr>
+            <td data-property-name="EyebrowLeftInner"> <code>EyebrowLeftInner</code> -
+              <a href="#definition-Coordinate"><code>Coordinate</code></a>
+            </td>
+            <td> </td>
+          </tr>
+          <tr>
+            <td data-property-name="EyeLeftOuter"> <code>EyeLeftOuter</code> -
+              <a href="#definition-Coordinate"><code>Coordinate</code></a>
+            </td>
+            <td> </td>
+          </tr>
+          <tr>
+            <td data-property-name="EyeLeftTop"> <code>EyeLeftTop</code> -
+              <a href="#definition-Coordinate"><code>Coordinate</code></a>
+            </td>
+            <td> </td>
+          </tr>
+          <tr>
+            <td data-property-name="EyeLeftBottom"> <code>EyeLeftBottom</code> -
+              <a href="#definition-Coordinate"><code>Coordinate</code></a>
+            </td>
+            <td> </td>
+          </tr>
+          <tr>
+            <td data-property-name="EyeLeftInner"> <code>EyeLeftInner</code> -
+              <a href="#definition-Coordinate"><code>Coordinate</code></a>
+            </td>
+            <td> </td>
+          </tr>
+          <tr>
+            <td data-property-name="EyebrowRightInner"> <code>EyebrowRightInner</code> -
+              <a href="#definition-Coordinate"><code>Coordinate</code></a>
+            </td>
+            <td> </td>
+          </tr>
+          <tr>
+            <td data-property-name="EyebrowRightOuter"> <code>EyebrowRightOuter</code> -
+              <a href="#definition-Coordinate"><code>Coordinate</code></a>
+            </td>
+            <td> </td>
+          </tr>
+          <tr>
+            <td data-property-name="EyeRightInner"> <code>EyeRightInner</code> -
+              <a href="#definition-Coordinate"><code>Coordinate</code></a>
+            </td>
+            <td> </td>
+          </tr>
+          <tr>
+            <td data-property-name="EyeRightTop"> <code>EyeRightTop</code> -
+              <a href="#definition-Coordinate"><code>Coordinate</code></a>
+            </td>
+            <td> </td>
+          </tr>
+          <tr>
+            <td data-property-name="EyeRightBottom"> <code>EyeRightBottom</code> -
+              <a href="#definition-Coordinate"><code>Coordinate</code></a>
+            </td>
+            <td> </td>
+          </tr>
+          <tr>
+            <td data-property-name="EyeRightOuter"> <code>EyeRightOuter</code> -
+              <a href="#definition-Coordinate"><code>Coordinate</code></a>
+            </td>
+            <td> </td>
+          </tr>
+          <tr>
+            <td data-property-name="NoseRootLeft"> <code>NoseRootLeft</code> -
+              <a href="#definition-Coordinate"><code>Coordinate</code></a>
+            </td>
+            <td> </td>
+          </tr>
+          <tr>
+            <td data-property-name="NoseRootRight"> <code>NoseRootRight</code> -
+              <a href="#definition-Coordinate"><code>Coordinate</code></a>
+            </td>
+            <td> </td>
+          </tr>
+          <tr>
+            <td data-property-name="NoseLeftAlarTop"> <code>NoseLeftAlarTop</code> -
+              <a href="#definition-Coordinate"><code>Coordinate</code></a>
+            </td>
+            <td> </td>
+          </tr>
+          <tr>
+            <td data-property-name="NoseRightAlarTop"> <code>NoseRightAlarTop</code> -
+              <a href="#definition-Coordinate"><code>Coordinate</code></a>
+            </td>
+            <td> </td>
+          </tr>
+          <tr>
+            <td data-property-name="NoseLeftAlarOutTip"> <code>NoseLeftAlarOutTip</code> -
+              <a href="#definition-Coordinate"><code>Coordinate</code></a>
+            </td>
+            <td> </td>
+          </tr>
+          <tr>
+            <td data-property-name="NoseRightAlarOutTip"> <code>NoseRightAlarOutTip</code> -
+              <a href="#definition-Coordinate"><code>Coordinate</code></a>
+            </td>
+            <td> </td>
+          </tr>
+          <tr>
+            <td data-property-name="UpperLipTop"> <code>UpperLipTop</code> -
+              <a href="#definition-Coordinate"><code>Coordinate</code></a>
+            </td>
+            <td> </td>
+          </tr>
+          <tr>
+            <td data-property-name="UpperLipBottom"> <code>UpperLipBottom</code> -
+              <a href="#definition-Coordinate"><code>Coordinate</code></a>
+            </td>
+            <td> </td>
+          </tr>
+          <tr>
+            <td data-property-name="UnderLipTop"> <code>UnderLipTop</code> -
+              <a href="#definition-Coordinate"><code>Coordinate</code></a>
+            </td>
+            <td> </td>
+          </tr>
+          <tr>
+            <td data-property-name="UnderLipBottom"> <code>UnderLipBottom</code> -
+              <a href="#definition-Coordinate"><code>Coordinate</code></a>
+            </td>
+            <td> </td>
+          </tr>
+        </table>
+      </section>
+    </div>
+    <div class="doc-examples">
+      <section>
+        <h5>Example</h5>
+        <html>
+
+        <head></head>
+
+        <body>
+          <pre><code class="hljs language-json">{
+  <span class="hljs-attr">"PupilLeft"</span>: <span class="hljs-string">Coordinate</span>,
+  <span class="hljs-attr">"PupilRight"</span>: <span class="hljs-string">Coordinate</span>,
+  <span class="hljs-attr">"NoseTip"</span>: <span class="hljs-string">Coordinate</span>,
+  <span class="hljs-attr">"MouthLeft"</span>: <span class="hljs-string">Coordinate</span>,
+  <span class="hljs-attr">"MouthRight"</span>: <span class="hljs-string">Coordinate</span>,
+  <span class="hljs-attr">"EyebrowLeftOuter"</span>: <span class="hljs-string">Coordinate</span>,
+  <span class="hljs-attr">"EyebrowLeftInner"</span>: <span class="hljs-string">Coordinate</span>,
+  <span class="hljs-attr">"EyeLeftOuter"</span>: <span class="hljs-string">Coordinate</span>,
+  <span class="hljs-attr">"EyeLeftTop"</span>: <span class="hljs-string">Coordinate</span>,
+  <span class="hljs-attr">"EyeLeftBottom"</span>: <span class="hljs-string">Coordinate</span>,
+  <span class="hljs-attr">"EyeLeftInner"</span>: <span class="hljs-string">Coordinate</span>,
+  <span class="hljs-attr">"EyebrowRightInner"</span>: <span class="hljs-string">Coordinate</span>,
+  <span class="hljs-attr">"EyebrowRightOuter"</span>: <span class="hljs-string">Coordinate</span>,
+  <span class="hljs-attr">"EyeRightInner"</span>: <span class="hljs-string">Coordinate</span>,
+  <span class="hljs-attr">"EyeRightTop"</span>: <span class="hljs-string">Coordinate</span>,
+  <span class="hljs-attr">"EyeRightBottom"</span>: <span class="hljs-string">Coordinate</span>,
+  <span class="hljs-attr">"EyeRightOuter"</span>: <span class="hljs-string">Coordinate</span>,
+  <span class="hljs-attr">"NoseRootLeft"</span>: <span class="hljs-string">Coordinate</span>,
+  <span class="hljs-attr">"NoseRootRight"</span>: <span class="hljs-string">Coordinate</span>,
+  <span class="hljs-attr">"NoseLeftAlarTop"</span>: <span class="hljs-string">Coordinate</span>,
+  <span class="hljs-attr">"NoseRightAlarTop"</span>: <span class="hljs-string">Coordinate</span>,
+  <span class="hljs-attr">"NoseLeftAlarOutTip"</span>: <span class="hljs-string">Coordinate</span>,
+  <span class="hljs-attr">"NoseRightAlarOutTip"</span>: <span class="hljs-string">Coordinate</span>,
+  <span class="hljs-attr">"UpperLipTop"</span>: <span class="hljs-string">Coordinate</span>,
+  <span class="hljs-attr">"UpperLipBottom"</span>: <span class="hljs-string">Coordinate</span>,
+  <span class="hljs-attr">"UnderLipTop"</span>: <span class="hljs-string">Coordinate</span>,
+  <span class="hljs-attr">"UnderLipBottom"</span>: <span class="hljs-string">Coordinate</span>
+}
+</code></pre>
+        </body>
+
+        </html>
+      </section>
+    </div>
+  </div>
+</div>
+<div id="definition-Rectangle" class="definition panel" data-traverse-target="definition-Rectangle">
+  <div class="definition-tags">
+    <a class="label" href="#tag-types">Types</a>
+  </div>
+  <h2 class="panel-title">
+    <a name="/definitions/Rectangle"></a>
+    <p><code>Rectangle</code></p>
+  </h2>
+  <div class="doc-row">
+    <div class="doc-copy">
+      <section class="json-schema-description">
+        <p>Rectangle gives the top left corner of a detected face and how long (height) and wide (length) the detected
+          face is.</p>
+        <p>To draw a rectangle around the detected face:</p>
+        <p> Top-left corner: (Top, Left)</p>
+        <p> Top-right corner: (Top, Left+Width)</p>
+        <p> Bottom-left corner: (Top+Height, Left)</p>
+        <p> Bottom-right corner: (Top+Height, Left+Width)</p>
+      </section>
+      <section class="json-schema-properties-blank">
+        <table>
+          <tr>
+            <th>Field Name</th>
+            <th>Description</th>
+          </tr>
+          <tr>
+            <td data-property-name="Width"> <code>Width</code> -
+              <a href="#definition-Int"><code>Int!</code></a>
+            </td>
+            <td> Width along X-axis of the detected face </td>
+          </tr>
+          <tr>
+            <td data-property-name="Height"> <code>Height</code> -
+              <a href="#definition-Int"><code>Int!</code></a>
+            </td>
+            <td> Height along Y-axis of the detected face </td>
+          </tr>
+          <tr>
+            <td data-property-name="Top"> <code>Top</code> -
+              <a href="#definition-Int"><code>Int!</code></a>
+            </td>
+            <td> Y-intercept of the top of the detected face </td>
+          </tr>
+          <tr>
+            <td data-property-name="Left"> <code>Left</code> -
+              <a href="#definition-Int"><code>Int!</code></a>
+            </td>
+            <td> X-intercept of the left side of the detected face </td>
+          </tr>
+        </table>
+      </section>
+    </div>
+    <div class="doc-examples">
+      <section>
+        <h5>Example</h5>
+        <html>
+
+        <head></head>
+
+        <body>
+          <pre><code class="hljs language-json">{<span class="hljs-attr">"Width"</span>: <span class="hljs-number">123</span>, <span class="hljs-attr">"Height"</span>: <span class="hljs-number">987</span>, <span class="hljs-attr">"Top"</span>: <span class="hljs-number">987</span>, <span class="hljs-attr">"Left"</span>: <span class="hljs-number">987</span>}
+</code></pre>
+        </body>
+
+        </html>
+      </section>
+    </div>
+  </div>
+</div>
+<div id="definition-SimilarFace" class="definition panel" data-traverse-target="definition-SimilarFace">
+  <div class="definition-tags">
+    <a class="label" href="#tag-types">Types</a>
+  </div>
+  <h2 class="panel-title">
+    <a name="/definitions/SimilarFace"></a>
+    <p><code>SimilarFace</code></p>
+  </h2>
+  <div class="doc-row">
+    <div class="doc-copy">
+      <section class="json-schema-description">
+        <p>SimilarFace stores information about the face that was matched to the probe face.</p>
+      </section>
+      <section class="json-schema-properties-blank">
+        <table>
+          <tr>
+            <th>Field Name</th>
+            <th>Description</th>
+          </tr>
+          <tr>
+            <td data-property-name="SimilarFaceID"> <code>SimilarFaceID</code> -
+              <a href="#definition-String"><code>String!</code></a>
+            </td>
+            <td> FaceID of the face that is similar to the probe face. </td>
+          </tr>
+          <tr>
+            <td data-property-name="Similarity"> <code>Similarity</code> -
+              <a href="#definition-Float"><code>Float!</code></a>
+            </td>
+            <td> Similarity between [0,1] of the matched face to the probe face. 0 is not similar and 1 is very similar.
+            </td>
+          </tr>
+        </table>
+      </section>
+    </div>
+    <div class="doc-examples">
+      <section>
+        <h5>Example</h5>
+        <html>
+
+        <head></head>
+
+        <body>
+          <pre><code class="hljs language-json">{<span class="hljs-attr">"SimilarFaceID"</span>: <span class="hljs-string">"xyz789"</span>, <span class="hljs-attr">"Similarity"</span>: <span class="hljs-number">123.45</span>}
+</code></pre>
+        </body>
+
+        </html>
+      </section>
+    </div>
+  </div>
+</div>
+<div id="definition-SimilarFaceResponse" class="definition panel" data-traverse-target="definition-SimilarFaceResponse">
+  <div class="definition-tags">
+    <a class="label" href="#tag-types">Types</a>
+  </div>
+  <h2 class="panel-title">
+    <a name="/definitions/SimilarFaceResponse"></a>
+    <p><code>SimilarFaceResponse</code></p>
+  </h2>
+  <div class="doc-row">
+    <div class="doc-copy">
+      <section class="json-schema-properties-blank">
+        <table>
+          <tr>
+            <th>Field Name</th>
+            <th>Description</th>
+          </tr>
+          <tr>
+            <td data-property-name="DetectedFace"> <code>DetectedFace</code> -
+              <a href="#definition-DetectedFace"><code>DetectedFace!</code></a>
+            </td>
+            <td> Face features of the probe face. </td>
+          </tr>
+          <tr>
+            <td data-property-name="FaceList"> <code>FaceList</code> -
+              <a href="#definition-FaceList"><code>FaceList!</code></a>
+            </td>
+            <td> The FaceList to match the probe face against. </td>
+          </tr>
+          <tr>
+            <td data-property-name="SimilarFaces"> <code>SimilarFaces</code> -
+              <a href="#definition-SimilarFace"><code>[SimilarFace!]!</code></a>
+            </td>
+            <td> List of the 3 most similar faces found in the facelist. </td>
+          </tr>
+        </table>
+      </section>
+    </div>
+    <div class="doc-examples">
+      <section>
+        <h5>Example</h5>
+        <html>
+
+        <head></head>
+
+        <body>
+          <pre><code class="hljs language-json">{
+  <span class="hljs-attr">"DetectedFace"</span>: <span class="hljs-string">DetectedFace</span>,
+  <span class="hljs-attr">"FaceList"</span>: <span class="hljs-string">FaceList</span>,
+  <span class="hljs-attr">"SimilarFaces"</span>: [<span class="hljs-string">SimilarFace</span>]
+}
+</code></pre>
+        </body>
+
+        </html>
+      </section>
+    </div>
+  </div>
+</div>
+<div id="definition-String" class="definition panel" data-traverse-target="definition-String">
+  <div class="definition-tags">
+    <a class="label" href="#tag-types">Types</a>
+  </div>
+  <h2 class="panel-title">
+    <a name="/definitions/String"></a>
+    <p><code>String</code></p>
+  </h2>
+  <div class="doc-row">
+    <div class="doc-copy">
+      <section class="json-schema-description">
+        <p>The <code>String</code> scalar type represents textual data, represented as UTF-8 character sequences. The
+          String type is most often used by GraphQL to represent free-form human-readable text.</p>
+      </section>
+    </div>
+  </div>
+</div>
+<div class="doc-row no-margin">
+  <div class="doc-copy doc-separator">
+    <a class="powered-by" href="https://github.com/anvilco/spectaql">Documentation by
+      <span>Anvil SpectaQL</span>
+    </a>
+  </div>
+</div>
+</article>
+</div>
+</div>
+</body>
+
+</html>

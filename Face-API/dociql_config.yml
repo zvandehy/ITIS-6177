@@ -1,0 +1,25 @@
+introspection: http://localhost:8080/query
+servers:
+  - url: http://localhost:8080/query
+    description: Zeke's FaceAPI Server
+info:
+  description: |
+    Welcome to the sample Pokémon API reference. This is a live example of how you can use [DociQL](https://github.com/wayfair/dociql) in conjunction with [GraphQL](https://graphql.org/) to generate beautiful static documentation for your own APIs.
+    The Pokémon API is GraphQL API. It's schema can be fetched using introspection query and can be used for generating code, documentations, tests etc.
+    GraphQL is a query language for APIs and a runtime for fulfilling those queries with your existing data. GraphQL provides a complete and understandable description of the data in your API, gives clients the power to ask for exactly what they need and nothing more, makes it easier to evolve APIs over time, and enables powerful developer tools.
+  version: 1.0.0
+  title: FaceAPI
+  termsOfService: "https://graphql-pokemon2.vercel.app/terms"
+  contact:
+    email: zvandehy@gmail.com
+  license:
+    name: Apache 2.0
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+domains:
+  - name: Face Detection
+    description: Send an image that contains one or more faces and receive information about the faces that are detected.
+    usecases:
+      - name: Detect Faces
+        description: Retrieve face information like landmarks, rectangle, and attributes from the faces detected in the provided image.
+        query: query.faces
+        expand: FaceAttributes,Emotion

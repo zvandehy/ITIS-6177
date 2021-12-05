@@ -35,6 +35,7 @@ type Config struct {
 }
 
 type ResolverRoot interface {
+	Mutation() MutationResolver
 	Query() QueryResolver
 }
 
@@ -83,6 +84,17 @@ type ComplexityRoot struct {
 		Surprise  func(childComplexity int) int
 	}
 
+	FaceList struct {
+		FaceListID func(childComplexity int) int
+		Faces      func(childComplexity int) int
+		Name       func(childComplexity int) int
+	}
+
+	FaceResponse struct {
+		FaceID   func(childComplexity int) int
+		FaceList func(childComplexity int) int
+	}
+
 	Landmarks struct {
 		EyeLeftBottom       func(childComplexity int) int
 		EyeLeftInner        func(childComplexity int) int
@@ -113,8 +125,17 @@ type ComplexityRoot struct {
 		UpperLipTop         func(childComplexity int) int
 	}
 
+	Mutation struct {
+		AddFaceToList      func(childComplexity int, url string, faceListID string) int
+		CreateFaceList     func(childComplexity int, faceListID string, name string) int
+		DeleteFaceFromList func(childComplexity int, faceID string, faceListID string) int
+		DeleteFaceList     func(childComplexity int, faceListID string) int
+	}
+
 	Query struct {
-		Faces func(childComplexity int, url string) int
+		Facelist        func(childComplexity int, faceListID string) int
+		Faces           func(childComplexity int, url string) int
+		FindSimilarFace func(childComplexity int, probeFaceURL *string, faceListID string) int
 	}
 
 	Rectangle struct {
@@ -123,10 +144,29 @@ type ComplexityRoot struct {
 		Top    func(childComplexity int) int
 		Width  func(childComplexity int) int
 	}
+
+	SimilarFace struct {
+		SimilarFaceID func(childComplexity int) int
+		Similarity    func(childComplexity int) int
+	}
+
+	SimilarFaceResponse struct {
+		DetectedFace func(childComplexity int) int
+		FaceList     func(childComplexity int) int
+		SimilarFaces func(childComplexity int) int
+	}
 }
 
+type MutationResolver interface {
+	CreateFaceList(ctx context.Context, faceListID string, name string) (*model.FaceList, error)
+	DeleteFaceList(ctx context.Context, faceListID string) (*model.FaceList, error)
+	AddFaceToList(ctx context.Context, url string, faceListID string) (*model.FaceResponse, error)
+	DeleteFaceFromList(ctx context.Context, faceID string, faceListID string) (*model.FaceResponse, error)
+}
 type QueryResolver interface {
 	Faces(ctx context.Context, url string) ([]*model.DetectedFace, error)
+	Facelist(ctx context.Context, faceListID string) (*model.FaceList, error)
+	FindSimilarFace(ctx context.Context, probeFaceURL *string, faceListID string) (*model.SimilarFaceResponse, error)
 }
 
 type executableSchema struct {
@@ -347,6 +387,41 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Emotion.Surprise(childComplexity), true
 
+	case "FaceList.FaceListID":
+		if e.complexity.FaceList.FaceListID == nil {
+			break
+		}
+
+		return e.complexity.FaceList.FaceListID(childComplexity), true
+
+	case "FaceList.Faces":
+		if e.complexity.FaceList.Faces == nil {
+			break
+		}
+
+		return e.complexity.FaceList.Faces(childComplexity), true
+
+	case "FaceList.Name":
+		if e.complexity.FaceList.Name == nil {
+			break
+		}
+
+		return e.complexity.FaceList.Name(childComplexity), true
+
+	case "FaceResponse.FaceID":
+		if e.complexity.FaceResponse.FaceID == nil {
+			break
+		}
+
+		return e.complexity.FaceResponse.FaceID(childComplexity), true
+
+	case "FaceResponse.FaceList":
+		if e.complexity.FaceResponse.FaceList == nil {
+			break
+		}
+
+		return e.complexity.FaceResponse.FaceList(childComplexity), true
+
 	case "Landmarks.EyeLeftBottom":
 		if e.complexity.Landmarks.EyeLeftBottom == nil {
 			break
@@ -536,6 +611,66 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Landmarks.UpperLipTop(childComplexity), true
 
+	case "Mutation.addFaceToList":
+		if e.complexity.Mutation.AddFaceToList == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_addFaceToList_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.AddFaceToList(childComplexity, args["URL"].(string), args["FaceListID"].(string)), true
+
+	case "Mutation.createFaceList":
+		if e.complexity.Mutation.CreateFaceList == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createFaceList_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateFaceList(childComplexity, args["FaceListID"].(string), args["Name"].(string)), true
+
+	case "Mutation.deleteFaceFromList":
+		if e.complexity.Mutation.DeleteFaceFromList == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_deleteFaceFromList_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.DeleteFaceFromList(childComplexity, args["FaceID"].(string), args["FaceListID"].(string)), true
+
+	case "Mutation.deleteFaceList":
+		if e.complexity.Mutation.DeleteFaceList == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_deleteFaceList_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.DeleteFaceList(childComplexity, args["FaceListID"].(string)), true
+
+	case "Query.facelist":
+		if e.complexity.Query.Facelist == nil {
+			break
+		}
+
+		args, err := ec.field_Query_facelist_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Facelist(childComplexity, args["FaceListID"].(string)), true
+
 	case "Query.faces":
 		if e.complexity.Query.Faces == nil {
 			break
@@ -547,6 +682,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.Faces(childComplexity, args["url"].(string)), true
+
+	case "Query.findSimilarFace":
+		if e.complexity.Query.FindSimilarFace == nil {
+			break
+		}
+
+		args, err := ec.field_Query_findSimilarFace_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.FindSimilarFace(childComplexity, args["ProbeFaceURL"].(*string), args["FaceListID"].(string)), true
 
 	case "Rectangle.Height":
 		if e.complexity.Rectangle.Height == nil {
@@ -576,6 +723,41 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Rectangle.Width(childComplexity), true
 
+	case "SimilarFace.SimilarFaceID":
+		if e.complexity.SimilarFace.SimilarFaceID == nil {
+			break
+		}
+
+		return e.complexity.SimilarFace.SimilarFaceID(childComplexity), true
+
+	case "SimilarFace.Similarity":
+		if e.complexity.SimilarFace.Similarity == nil {
+			break
+		}
+
+		return e.complexity.SimilarFace.Similarity(childComplexity), true
+
+	case "SimilarFaceResponse.DetectedFace":
+		if e.complexity.SimilarFaceResponse.DetectedFace == nil {
+			break
+		}
+
+		return e.complexity.SimilarFaceResponse.DetectedFace(childComplexity), true
+
+	case "SimilarFaceResponse.FaceList":
+		if e.complexity.SimilarFaceResponse.FaceList == nil {
+			break
+		}
+
+		return e.complexity.SimilarFaceResponse.FaceList(childComplexity), true
+
+	case "SimilarFaceResponse.SimilarFaces":
+		if e.complexity.SimilarFaceResponse.SimilarFaces == nil {
+			break
+		}
+
+		return e.complexity.SimilarFaceResponse.SimilarFaces(childComplexity), true
+
 	}
 	return 0, false
 }
@@ -593,6 +775,20 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 			}
 			first = false
 			data := ec._Query(ctx, rc.Operation.SelectionSet)
+			var buf bytes.Buffer
+			data.MarshalGQL(&buf)
+
+			return &graphql.Response{
+				Data: buf.Bytes(),
+			}
+		}
+	case ast.Mutation:
+		return func(ctx context.Context) *graphql.Response {
+			if !first {
+				return nil
+			}
+			first = false
+			data := ec._Mutation(ctx, rc.Operation.SelectionSet)
 			var buf bytes.Buffer
 			data.MarshalGQL(&buf)
 
@@ -631,15 +827,24 @@ var sources = []*ast.Source{
 # https://gqlgen.com/getting-started/
 
 """
-DetectedFace in the provided image has a unique FaceID uuid
-A rectangle can be drawn around the detected face using FaceRectangle information.
-Face features can be pinpointed using FaceLandmarks.
-Attributes of the face like hair, emotion, gender, etc. can be found in FaceAttributes.
+A face detected in an image with details about the face features/attributes and 2-dimensional position.
 """
 type DetectedFace {
+  """
+  DetectedFace in the provided image has a unique FaceID uuid
+  """
   FaceID: String!
+  """
+  A rectangle can be drawn around the detected face using FaceRectangle information.
+  """
   FaceRectangle: Rectangle!
+  """
+  Face features like eyes, nose, and mouth, can be pinpointed using FaceLandmarks.
+  """
   FaceLandmarks: Landmarks!
+  """
+  Attributes of the face like hair, emotion, gender, etc. can be found in FaceAttributes.
+  """
   FaceAttributes: Attributes!
 }
 
@@ -647,15 +852,31 @@ type DetectedFace {
 Rectangle gives the top left corner of a detected face and how long (height) and wide (length) the detected face is.
 
 To draw a rectangle around the detected face:
+
   Top-left corner: (Top, Left)
+
   Top-right corner: (Top, Left+Width)
+
   Bottom-left corner: (Top+Height, Left)
+
   Bottom-right corner: (Top+Height, Left+Width)
 """
 type Rectangle {
+  """
+  Width along X-axis of the detected face
+  """
   Width: Int!
+  """
+  Height along Y-axis of the detected face
+  """
   Height: Int!
+  """
+  Y-intercept of the top of the detected face
+  """
   Top: Int!
+  """
+  X-intercept of the left side of the detected face
+  """
   Left: Int!
 }
 
@@ -717,7 +938,7 @@ type Attributes {
   """
   Beard: Float
   """
-  Estimated length of the sideburns on the detected face where 0 is no sideburns and 1 is a very long sideburns.
+  Estimated length of the sideburns on the detected face where 0 is no sideburns and 1 is very long sideburns.
   """
   Sideburns: Float
   """
@@ -730,6 +951,8 @@ type Attributes {
   Emotion: Emotion
   """
   Highest confidence hair color of the detected face. If the color cannot be detected, the hair is "invisible", or the individual is likely "bald" then the returned color is "Unknown".
+
+  A detected hair color could be "black", "blond", "brown", "gray", "red", "white", or "other".
   """
   HairColor: String
   """
@@ -761,7 +984,7 @@ type Attributes {
 """
 Each Emotion is a value between 0  and 1 that indicates the confidence that the detected Face is showing the specified Emotion.
 
-0 indicates the Emotion is absent and 1 indicates the Emotion is present.
+0 indicates the Emotion is absent and 1 indicates the Emotion is intense.
 """
 type Emotion {
   Anger: Float!
@@ -778,13 +1001,30 @@ type Emotion {
 Coordinates (X,Y) of the specified Landmark
 """
 type Coordinate {
+  "x-coordinate"
   X: Float!
+  "y-coordinate"
   Y: Float!
+}
+
+type FaceList {
+  """
+  Provided ID of the FaceList
+  """
+  FaceListID: String!
+  """
+  Provided Name of the FaceList
+  """
+  Name: String!
+  """
+  Persistent FaceIDs saved to the specified FaceList.
+  """
+  Faces: [String!]
 }
 
 type Query {
   """
-  Given the url of an image, return all of the detected faces in the image.
+  Given the url of an image, return all of the detected faces in the image. These faces and their given faceIDs and attributes are *temporary*. To save a permanent face (no image is saved), create a FaceList and add a face to it.
 
   Images should be JPEG, PNG, GIF (first frame), or BMP format.
 
@@ -798,7 +1038,123 @@ type Query {
     * the face has unusual hair type or facial hair
     * the face has extreme expressions
   """
-  faces(url: String!): [DetectedFace!]!
+  faces(
+    "A URL of an image with 1 or more detectable faces"
+    url: String!
+  ): [DetectedFace!]!
+
+  """
+  Get the FaceList with the specified FaceListID.
+  """
+  facelist(
+    "The user-specified ID that uniquely identifies this FaceList."
+    FaceListID: String!
+  ): FaceList!
+
+  """
+  FindSimilarFace searches the provided FaceList for faces that are similar to the provided ProbeFace.
+
+  The URL should be an image with only one face. The face will be detected and used to find a similar face in the facelist. Attributes of the detected face will be returned.
+  """
+  findSimilarFace(
+    """
+    The URL of a face to probe for a similar match.
+    """
+    ProbeFaceURL: String
+    """
+    The FaceList gallery of faces to find a similar match to the probe face. The FaceListID should be a user created ID using the createFaceList() mutation.
+    """
+    FaceListID: String!
+  ): SimilarFaceResponse!
+}
+
+type Mutation {
+  """
+  Create a FaceList to save persistent faces. FaceLists are used to analyze saved faces and identify similar faces.
+  """
+  createFaceList(
+    "A user-specified ID that uniquely identifies this FaceList. The ID must only contain lowercase letters, underscores, and/or numbers. It cannot be equivalent to any other facelist ID."
+    FaceListID: String!
+    "A user-specified Name that does not need to be unique."
+    Name: String!
+  ): FaceList!
+  """
+  Delete a FaceList and all of its saved Faces.
+  """
+  deleteFaceList(
+    "The user-specified ID that uniquely identifies this FaceList."
+    FaceListID: String!
+  ): FaceList!
+  """
+  Add a face detected from the provided url to the list with the provided FaceListID.
+
+  Returned: FaceID & FaceList
+  FaceID is the generated unique identifier of the detected and saved Face. You should likely store this value with a name or other information so that you can refer back to what this face represents or where it is from.
+
+  FaceList is the resulting FaceList the face was saved to.
+
+  There should only be one face detected in the image.
+  """
+  addFaceToList(
+    "URL to an image that contains a single detectable face to be added to the list"
+    URL: String!
+    "The user-specified ID that uniquely identifies this FaceList."
+    FaceListID: String!
+  ): FaceResponse!
+
+  """
+  Delete a face from a FaceList using the specified FaceID and FaceListID.
+
+  Returned: FaceID & FaceList
+  FaceID is the unique identifier of the deleted Face.
+
+  FaceList is the resulting FaceList after the face was deleted.
+  """
+  deleteFaceFromList(
+    "The generated FaceID of the face that"
+    FaceID: String!
+    "The user-specified ID that uniquely identifies this FaceList."
+    FaceListID: String!
+  ): FaceResponse!
+}
+
+type SimilarFaceResponse {
+  """
+  Face features of the probe face.
+  """
+  DetectedFace: DetectedFace!
+  """
+  The FaceList to match the probe face against.
+  """
+  FaceList: FaceList!
+  """
+  List of the 3 most similar faces found in the facelist.
+  """
+  SimilarFaces: [SimilarFace!]!
+}
+
+"""
+Response data structure for the resulting FaceList after completing the mutation with the provided FaceID.
+"""
+type FaceResponse {
+  "The FaceList that contains (or contained) this Face"
+  FaceList: FaceList!
+  "The generated unique ID of the detected Face"
+  FaceID: String!
+}
+
+"""
+SimilarFace stores information about the face that was matched to the probe face.
+"""
+type SimilarFace {
+  """
+  FaceID of the face that is similar to the probe face.
+  """
+  SimilarFaceID: String!
+  """
+  Similarity between [0,1] of the matched face to the probe face. 0 is not similar and 1 is very similar.
+  """
+  Similarity: Float!
 }
 `, BuiltIn: false},
 }
@@ -807,6 +1163,93 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 // endregion ************************** generated!.gotpl **************************
 
 // region    ***************************** args.gotpl *****************************
+
+func (ec *executionContext) field_Mutation_addFaceToList_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["URL"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("URL"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["URL"] = arg0
+	var arg1 string
+	if tmp, ok := rawArgs["FaceListID"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("FaceListID"))
+		arg1, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["FaceListID"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_createFaceList_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["FaceListID"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("FaceListID"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["FaceListID"] = arg0
+	var arg1 string
+	if tmp, ok := rawArgs["Name"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("Name"))
+		arg1, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["Name"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_deleteFaceFromList_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["FaceID"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("FaceID"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["FaceID"] = arg0
+	var arg1 string
+	if tmp, ok := rawArgs["FaceListID"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("FaceListID"))
+		arg1, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["FaceListID"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_deleteFaceList_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["FaceListID"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("FaceListID"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["FaceListID"] = arg0
+	return args, nil
+}
 
 func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
@@ -823,6 +1266,21 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 	return args, nil
 }
 
+func (ec *executionContext) field_Query_facelist_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["FaceListID"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("FaceListID"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["FaceListID"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_Query_faces_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -835,6 +1293,30 @@ func (ec *executionContext) field_Query_faces_args(ctx context.Context, rawArgs 
 		}
 	}
 	args["url"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_findSimilarFace_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *string
+	if tmp, ok := rawArgs["ProbeFaceURL"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ProbeFaceURL"))
+		arg0, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["ProbeFaceURL"] = arg0
+	var arg1 string
+	if tmp, ok := rawArgs["FaceListID"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("FaceListID"))
+		arg1, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["FaceListID"] = arg1
 	return args, nil
 }
 
@@ -1846,6 +2328,178 @@ func (ec *executionContext) _Emotion_Surprise(ctx context.Context, field graphql
 	return ec.marshalNFloat2float64(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _FaceList_FaceListID(ctx context.Context, field graphql.CollectedField, obj *model.FaceList) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "FaceList",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.FaceListID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _FaceList_Name(ctx context.Context, field graphql.CollectedField, obj *model.FaceList) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "FaceList",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _FaceList_Faces(ctx context.Context, field graphql.CollectedField, obj *model.FaceList) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "FaceList",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Faces, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]string)
+	fc.Result = res
+	return ec.marshalOString2ᚕstringᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _FaceResponse_FaceList(ctx context.Context, field graphql.CollectedField, obj *model.FaceResponse) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "FaceResponse",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.FaceList, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.FaceList)
+	fc.Result = res
+	return ec.marshalNFaceList2ᚖgithubᚗcomᚋzvandehyᚋfaceapiᚋgraphᚋmodelᚐFaceList(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _FaceResponse_FaceID(ctx context.Context, field graphql.CollectedField, obj *model.FaceResponse) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "FaceResponse",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.FaceID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Landmarks_PupilLeft(ctx context.Context, field graphql.CollectedField, obj *model.Landmarks) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -2710,6 +3364,174 @@ func (ec *executionContext) _Landmarks_UnderLipBottom(ctx context.Context, field
 	return ec.marshalOCoordinate2ᚖgithubᚗcomᚋzvandehyᚋfaceapiᚋgraphᚋmodelᚐCoordinate(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Mutation_createFaceList(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_createFaceList_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().CreateFaceList(rctx, args["FaceListID"].(string), args["Name"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.FaceList)
+	fc.Result = res
+	return ec.marshalNFaceList2ᚖgithubᚗcomᚋzvandehyᚋfaceapiᚋgraphᚋmodelᚐFaceList(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_deleteFaceList(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_deleteFaceList_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().DeleteFaceList(rctx, args["FaceListID"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.FaceList)
+	fc.Result = res
+	return ec.marshalNFaceList2ᚖgithubᚗcomᚋzvandehyᚋfaceapiᚋgraphᚋmodelᚐFaceList(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_addFaceToList(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_addFaceToList_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().AddFaceToList(rctx, args["URL"].(string), args["FaceListID"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.FaceResponse)
+	fc.Result = res
+	return ec.marshalNFaceResponse2ᚖgithubᚗcomᚋzvandehyᚋfaceapiᚋgraphᚋmodelᚐFaceResponse(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_deleteFaceFromList(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_deleteFaceFromList_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().DeleteFaceFromList(rctx, args["FaceID"].(string), args["FaceListID"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.FaceResponse)
+	fc.Result = res
+	return ec.marshalNFaceResponse2ᚖgithubᚗcomᚋzvandehyᚋfaceapiᚋgraphᚋmodelᚐFaceResponse(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Query_faces(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -2750,6 +3572,90 @@ func (ec *executionContext) _Query_faces(ctx context.Context, field graphql.Coll
 	res := resTmp.([]*model.DetectedFace)
 	fc.Result = res
 	return ec.marshalNDetectedFace2ᚕᚖgithubᚗcomᚋzvandehyᚋfaceapiᚋgraphᚋmodelᚐDetectedFaceᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_facelist(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_facelist_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().Facelist(rctx, args["FaceListID"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.FaceList)
+	fc.Result = res
+	return ec.marshalNFaceList2ᚖgithubᚗcomᚋzvandehyᚋfaceapiᚋgraphᚋmodelᚐFaceList(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_findSimilarFace(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_findSimilarFace_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().FindSimilarFace(rctx, args["ProbeFaceURL"].(*string), args["FaceListID"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.SimilarFaceResponse)
+	fc.Result = res
+	return ec.marshalNSimilarFaceResponse2ᚖgithubᚗcomᚋzvandehyᚋfaceapiᚋgraphᚋmodelᚐSimilarFaceResponse(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -2961,6 +3867,181 @@ func (ec *executionContext) _Rectangle_Left(ctx context.Context, field graphql.C
 	res := resTmp.(int)
 	fc.Result = res
 	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _SimilarFace_SimilarFaceID(ctx context.Context, field graphql.CollectedField, obj *model.SimilarFace) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "SimilarFace",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.SimilarFaceID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _SimilarFace_Similarity(ctx context.Context, field graphql.CollectedField, obj *model.SimilarFace) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "SimilarFace",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Similarity, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _SimilarFaceResponse_DetectedFace(ctx context.Context, field graphql.CollectedField, obj *model.SimilarFaceResponse) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "SimilarFaceResponse",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.DetectedFace, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.DetectedFace)
+	fc.Result = res
+	return ec.marshalNDetectedFace2ᚖgithubᚗcomᚋzvandehyᚋfaceapiᚋgraphᚋmodelᚐDetectedFace(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _SimilarFaceResponse_FaceList(ctx context.Context, field graphql.CollectedField, obj *model.SimilarFaceResponse) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "SimilarFaceResponse",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.FaceList, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.FaceList)
+	fc.Result = res
+	return ec.marshalNFaceList2ᚖgithubᚗcomᚋzvandehyᚋfaceapiᚋgraphᚋmodelᚐFaceList(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _SimilarFaceResponse_SimilarFaces(ctx context.Context, field graphql.CollectedField, obj *model.SimilarFaceResponse) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "SimilarFaceResponse",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.SimilarFaces, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.SimilarFace)
+	fc.Result = res
+	return ec.marshalNSimilarFace2ᚕᚖgithubᚗcomᚋzvandehyᚋfaceapiᚋgraphᚋmodelᚐSimilarFaceᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) ___Directive_name(ctx context.Context, field graphql.CollectedField, obj *introspection.Directive) (ret graphql.Marshaler) {
@@ -4281,6 +5362,72 @@ func (ec *executionContext) _Emotion(ctx context.Context, sel ast.SelectionSet, 
 	return out
 }
 
+var faceListImplementors = []string{"FaceList"}
+
+func (ec *executionContext) _FaceList(ctx context.Context, sel ast.SelectionSet, obj *model.FaceList) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, faceListImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("FaceList")
+		case "FaceListID":
+			out.Values[i] = ec._FaceList_FaceListID(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "Name":
+			out.Values[i] = ec._FaceList_Name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "Faces":
+			out.Values[i] = ec._FaceList_Faces(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var faceResponseImplementors = []string{"FaceResponse"}
+
+func (ec *executionContext) _FaceResponse(ctx context.Context, sel ast.SelectionSet, obj *model.FaceResponse) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, faceResponseImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("FaceResponse")
+		case "FaceList":
+			out.Values[i] = ec._FaceResponse_FaceList(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "FaceID":
+			out.Values[i] = ec._FaceResponse_FaceID(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var landmarksImplementors = []string{"Landmarks"}
 
 func (ec *executionContext) _Landmarks(ctx context.Context, sel ast.SelectionSet, obj *model.Landmarks) graphql.Marshaler {
@@ -4357,6 +5504,52 @@ func (ec *executionContext) _Landmarks(ctx context.Context, sel ast.SelectionSet
 	return out
 }
 
+var mutationImplementors = []string{"Mutation"}
+
+func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, mutationImplementors)
+
+	ctx = graphql.WithFieldContext(ctx, &graphql.FieldContext{
+		Object: "Mutation",
+	})
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Mutation")
+		case "createFaceList":
+			out.Values[i] = ec._Mutation_createFaceList(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "deleteFaceList":
+			out.Values[i] = ec._Mutation_deleteFaceList(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "addFaceToList":
+			out.Values[i] = ec._Mutation_addFaceToList(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "deleteFaceFromList":
+			out.Values[i] = ec._Mutation_deleteFaceFromList(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var queryImplementors = []string{"Query"}
 
 func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) graphql.Marshaler {
@@ -4381,6 +5574,34 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_faces(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
+		case "facelist":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_facelist(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
+		case "findSimilarFace":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_findSimilarFace(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
@@ -4429,6 +5650,75 @@ func (ec *executionContext) _Rectangle(ctx context.Context, sel ast.SelectionSet
 			}
 		case "Left":
 			out.Values[i] = ec._Rectangle_Left(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var similarFaceImplementors = []string{"SimilarFace"}
+
+func (ec *executionContext) _SimilarFace(ctx context.Context, sel ast.SelectionSet, obj *model.SimilarFace) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, similarFaceImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("SimilarFace")
+		case "SimilarFaceID":
+			out.Values[i] = ec._SimilarFace_SimilarFaceID(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "Similarity":
+			out.Values[i] = ec._SimilarFace_Similarity(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var similarFaceResponseImplementors = []string{"SimilarFaceResponse"}
+
+func (ec *executionContext) _SimilarFaceResponse(ctx context.Context, sel ast.SelectionSet, obj *model.SimilarFaceResponse) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, similarFaceResponseImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("SimilarFaceResponse")
+		case "DetectedFace":
+			out.Values[i] = ec._SimilarFaceResponse_DetectedFace(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "FaceList":
+			out.Values[i] = ec._SimilarFaceResponse_FaceList(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "SimilarFaces":
+			out.Values[i] = ec._SimilarFaceResponse_SimilarFaces(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
@@ -4772,6 +6062,34 @@ func (ec *executionContext) marshalNDetectedFace2ᚖgithubᚗcomᚋzvandehyᚋfa
 	return ec._DetectedFace(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNFaceList2githubᚗcomᚋzvandehyᚋfaceapiᚋgraphᚋmodelᚐFaceList(ctx context.Context, sel ast.SelectionSet, v model.FaceList) graphql.Marshaler {
+	return ec._FaceList(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNFaceList2ᚖgithubᚗcomᚋzvandehyᚋfaceapiᚋgraphᚋmodelᚐFaceList(ctx context.Context, sel ast.SelectionSet, v *model.FaceList) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._FaceList(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNFaceResponse2githubᚗcomᚋzvandehyᚋfaceapiᚋgraphᚋmodelᚐFaceResponse(ctx context.Context, sel ast.SelectionSet, v model.FaceResponse) graphql.Marshaler {
+	return ec._FaceResponse(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNFaceResponse2ᚖgithubᚗcomᚋzvandehyᚋfaceapiᚋgraphᚋmodelᚐFaceResponse(ctx context.Context, sel ast.SelectionSet, v *model.FaceResponse) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._FaceResponse(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNFloat2float64(ctx context.Context, v interface{}) (float64, error) {
 	res, err := graphql.UnmarshalFloat(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -4820,6 +6138,74 @@ func (ec *executionContext) marshalNRectangle2ᚖgithubᚗcomᚋzvandehyᚋfacea
 		return graphql.Null
 	}
 	return ec._Rectangle(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNSimilarFace2ᚕᚖgithubᚗcomᚋzvandehyᚋfaceapiᚋgraphᚋmodelᚐSimilarFaceᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.SimilarFace) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNSimilarFace2ᚖgithubᚗcomᚋzvandehyᚋfaceapiᚋgraphᚋmodelᚐSimilarFace(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNSimilarFace2ᚖgithubᚗcomᚋzvandehyᚋfaceapiᚋgraphᚋmodelᚐSimilarFace(ctx context.Context, sel ast.SelectionSet, v *model.SimilarFace) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._SimilarFace(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNSimilarFaceResponse2githubᚗcomᚋzvandehyᚋfaceapiᚋgraphᚋmodelᚐSimilarFaceResponse(ctx context.Context, sel ast.SelectionSet, v model.SimilarFaceResponse) graphql.Marshaler {
+	return ec._SimilarFaceResponse(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNSimilarFaceResponse2ᚖgithubᚗcomᚋzvandehyᚋfaceapiᚋgraphᚋmodelᚐSimilarFaceResponse(ctx context.Context, sel ast.SelectionSet, v *model.SimilarFaceResponse) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._SimilarFaceResponse(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v interface{}) (string, error) {
@@ -5154,6 +6540,48 @@ func (ec *executionContext) unmarshalOString2string(ctx context.Context, v inter
 
 func (ec *executionContext) marshalOString2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
 	return graphql.MarshalString(v)
+}
+
+func (ec *executionContext) unmarshalOString2ᚕstringᚄ(ctx context.Context, v interface{}) ([]string, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []interface{}
+	if v != nil {
+		if tmp1, ok := v.([]interface{}); ok {
+			vSlice = tmp1
+		} else {
+			vSlice = []interface{}{v}
+		}
+	}
+	var err error
+	res := make([]string, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNString2string(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalOString2ᚕstringᚄ(ctx context.Context, sel ast.SelectionSet, v []string) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	for i := range v {
+		ret[i] = ec.marshalNString2string(ctx, sel, v[i])
+	}
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 func (ec *executionContext) unmarshalOString2ᚕᚖstring(ctx context.Context, v interface{}) ([]*string, error) {

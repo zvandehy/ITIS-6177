@@ -1,0 +1,20 @@
+spectaql:
+
+introspection:
+  removeTrailingPeriodFromDescriptions: false
+  schemaFile: ./graph/schema.graphqls
+
+info:
+  title: EZ Face API
+  description: Welcome to the EZ Face API, powered by the Cognitive Services API from Azure. This GraphQL API allows you to easily [detect faces](#operation-createfacelist-Mutations) found in requested image URLs, or [create](#operation-createFaceList-Mutations) and manage your own [FaceLists](#operation-facelists-Queries). You can even [Find Similar](#operation-findsimilarface-Queries) faces in your facelists by comparing the list to a new face found in a requested image URL.
+  contact:
+    name: Zeke Van Dehy
+    email: evandehy@uncc.edu
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+
+servers:
+  - url: http://localhost:8080/query
+    description: Production
+    production: true

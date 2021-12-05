@@ -5,12 +5,60 @@ package graph
 
 import (
 	"context"
+	"fmt"
 
-	"github.com/Azure/azure-sdk-for-go/services/cognitiveservices/v1.0/face"
 	"github.com/zvandehy/faceapi/graph/generated"
 	"github.com/zvandehy/faceapi/graph/model"
 	"github.com/zvandehy/faceapi/pkg/faceapi"
 )
+
+func (r *mutationResolver) CreateFaceList(ctx context.Context, faceListID string, name string) (*model.FaceList, error) {
+	client := faceapi.Connect(ctx)
+	err := client.CreateFaceList(faceListID, name)
+	if err != nil {
+		return nil, err
+	}
+	return &model.FaceList{
+		FaceListID: faceListID,
+		Name:       name,
+		Faces:      []string{},
+	}, nil
+}
+
+func (r *mutationResolver) DeleteFaceList(ctx context.Context, faceListID string) (*model.FaceList, error) {
+	client := faceapi.Connect(ctx)
+	facelist, err := client.DeleteFaceList(faceListID)
+	if err != nil {
+		return nil, err
+	}
+	return createFaceList(*facelist), nil
+}
+
+func (r *mutationResolver) AddFaceToList(ctx context.Context, url string, faceListID string) (*model.FaceResponse, error) {
+	client := faceapi.Connect(ctx)
+	face, err := client.AddFaceToList(url, faceListID)
+	if err != nil {
+		return nil, err
+	}
+	facelist, err := client.GetFaceList(faceListID)
+	if err != nil {
+		return &model.FaceResponse{FaceList: &model.FaceList{FaceListID: faceListID}, FaceID: *face}, err
+	}
+	return &model.FaceResponse{FaceList: createFaceList(facelist), FaceID: *face}, nil
+}
+
+func (r *mutationResolver) DeleteFaceFromList(ctx context.Context, faceID string, faceListID string) (*model.FaceResponse, error) {
+	client := faceapi.Connect(ctx)
+	err := client.DeleteFaceFromList(faceID, faceListID)
+	if err != nil {
+		return nil, err
+	}
+	facelist, err := client.GetFaceList(faceListID)
+	if err != nil {
+		return &model.FaceResponse{FaceList: &model.FaceList{FaceListID: faceListID}, FaceID: faceID}, err
+	}
+	return &model.FaceResponse{FaceList: createFaceList(facelist), FaceID: faceID}, nil
+}
 
 func (r *queryResolver) Faces(ctx context.Context, url string) ([]*model.DetectedFace, error) {
 	client := faceapi.Connect(ctx)
@@ -21,107 +69,54 @@ func (r *queryResolver) Faces(ctx context.Context, url string) ([]*model.Detecte
 
 	var returnFaces []*model.DetectedFace
 	for _, face := range *faces {
-		f := model.DetectedFace{
-			FaceID:         face.FaceID.String(),
-			FaceAttributes: getAttributes(face),
-			FaceLandmarks:  getLandmarks(face),
-			FaceRectangle:  getRectangle(face),
-		}
-		returnFaces = append(returnFaces, &f)
+		returnFaces = append(returnFaces, createDetectedFace(face))
 	}
 	return returnFaces, nil
 }
 
-func getAttributes(face face.DetectedFace) *model.Attributes {
-	var hairColor string
-	if !*face.FaceAttributes.Hair.Invisible && *face.FaceAttributes.Hair.Bald < .6 {
-		max := 0.0
-		for _, val := range *face.FaceAttributes.Hair.HairColor {
-			if *val.Confidence < max {
-				hairColor = (string)(val.Color)
-				max = *val.Confidence
-			}
-		}
-	} else {
-		hairColor = "Unknown"
+func (r *queryResolver) Facelist(ctx context.Context, faceListID string) (*model.FaceList, error) {
+	client := faceapi.Connect(ctx)
+	faces, err := client.GetFaceList(faceListID)
+	if err != nil {
+		return nil, err
 	}
-	var accessories []*string
-	for _, val := range *face.FaceAttributes.Accessories {
-		accessories = append(accessories, (*string)(&val.Type))
-	}
-	attributes := model.Attributes{
-		Age:       face.FaceAttributes.Age,
-		Gender:    (*string)(&face.FaceAttributes.Gender),
-		Smile:     face.FaceAttributes.Smile,
-		Moustache: face.FaceAttributes.FacialHair.Moustache,
-		Beard:     face.FaceAttributes.FacialHair.Beard,
-		Sideburns: face.FaceAttributes.FacialHair.Sideburns,
-		Glasses:   (*string)(&face.FaceAttributes.Glasses),
-		Emotion: &model.Emotion{
-			Anger:     *face.FaceAttributes.Emotion.Anger,
-			Contempt:  *face.FaceAttributes.Emotion.Contempt,
-			Disgust:   *face.FaceAttributes.Emotion.Disgust,
-			Fear:      *face.FaceAttributes.Emotion.Fear,
-			Happiness: *face.FaceAttributes.Emotion.Happiness,
-			Neutral:   *face.FaceAttributes.Emotion.Neutral,
-			Sadness:   *face.FaceAttributes.Emotion.Sadness,
-			Surprise:  *face.FaceAttributes.Emotion.Surprise,
-		},
-		HairColor:   &hairColor,
-		EyeMakeup:   face.FaceAttributes.Makeup.EyeMakeup,
-		LipMakeup:   face.FaceAttributes.Makeup.LipMakeup,
-		Accessories: accessories,
-		Blur:        face.FaceAttributes.Blur.Value,
-		Exposure:    face.FaceAttributes.Exposure.Value,
-		Noise:       face.FaceAttributes.Noise.Value,
-	}
-	return &attributes
+	return createFaceList(faces), nil
 }
 
-func getLandmarks(face face.DetectedFace) *model.Landmarks {
-	landmarks := model.Landmarks{
-		PupilLeft:           &model.Coordinate{X: *face.FaceLandmarks.PupilLeft.X, Y: *face.FaceLandmarks.PupilLeft.Y},
-		PupilRight:          &model.Coordinate{X: *face.FaceLandmarks.PupilRight.X, Y: *face.FaceLandmarks.PupilRight.Y},
-		NoseTip:             &model.Coordinate{X: *face.FaceLandmarks.NoseTip.X, Y: *face.FaceLandmarks.NoseTip.Y},
-		MouthLeft:           &model.Coordinate{X: *face.FaceLandmarks.MouthLeft.X, Y: *face.FaceLandmarks.MouthLeft.Y},
-		MouthRight:          &model.Coordinate{X: *face.FaceLandmarks.MouthRight.X, Y: *face.FaceLandmarks.MouthRight.Y},
-		EyebrowLeftOuter:    &model.Coordinate{X: *face.FaceLandmarks.EyebrowLeftOuter.X, Y: *face.FaceLandmarks.EyebrowLeftOuter.Y},
-		EyebrowLeftInner:    &model.Coordinate{X: *face.FaceLandmarks.EyebrowLeftInner.X, Y: *face.FaceLandmarks.EyebrowLeftInner.Y},
-		EyeLeftOuter:        &model.Coordinate{X: *face.FaceLandmarks.EyeLeftOuter.X, Y: *face.FaceLandmarks.EyeLeftOuter.Y},
-		EyeLeftTop:          &model.Coordinate{X: *face.FaceLandmarks.EyeLeftTop.X, Y: *face.FaceLandmarks.EyeLeftTop.Y},
-		EyeLeftBottom:       &model.Coordinate{X: *face.FaceLandmarks.EyeLeftBottom.X, Y: *face.FaceLandmarks.EyeLeftBottom.Y},
-		EyeLeftInner:        &model.Coordinate{X: *face.FaceLandmarks.EyeLeftInner.X, Y: *face.FaceLandmarks.EyeLeftInner.Y},
-		EyebrowRightInner:   &model.Coordinate{X: *face.FaceLandmarks.EyebrowRightInner.X, Y: *face.FaceLandmarks.EyebrowRightInner.Y},
-		EyebrowRightOuter:   &model.Coordinate{X: *face.FaceLandmarks.EyebrowRightOuter.X, Y: *face.FaceLandmarks.EyebrowRightOuter.Y},
-		EyeRightInner:       &model.Coordinate{X: *face.FaceLandmarks.EyeRightInner.X, Y: *face.FaceLandmarks.EyeRightInner.Y},
-		EyeRightTop:         &model.Coordinate{X: *face.FaceLandmarks.EyeRightTop.X, Y: *face.FaceLandmarks.EyeRightTop.Y},
-		EyeRightBottom:      &model.Coordinate{X: *face.FaceLandmarks.EyeRightBottom.X, Y: *face.FaceLandmarks.EyeRightBottom.Y},
-		EyeRightOuter:       &model.Coordinate{X: *face.FaceLandmarks.EyeRightOuter.X, Y: *face.FaceLandmarks.EyeRightOuter.Y},
-		NoseRootLeft:        &model.Coordinate{X: *face.FaceLandmarks.NoseRootLeft.X, Y: *face.FaceLandmarks.NoseRootLeft.Y},
-		NoseRootRight:       &model.Coordinate{X: *face.FaceLandmarks.NoseRootRight.X, Y: *face.FaceLandmarks.NoseRootRight.Y},
-		NoseLeftAlarTop:     &model.Coordinate{X: *face.FaceLandmarks.NoseLeftAlarTop.X, Y: *face.FaceLandmarks.NoseLeftAlarTop.Y},
-		NoseRightAlarTop:    &model.Coordinate{X: *face.FaceLandmarks.NoseRightAlarTop.X, Y: *face.FaceLandmarks.NoseRightAlarTop.Y},
-		NoseLeftAlarOutTip:  &model.Coordinate{X: *face.FaceLandmarks.NoseLeftAlarOutTip.X, Y: *face.FaceLandmarks.NoseLeftAlarOutTip.Y},
-		NoseRightAlarOutTip: &model.Coordinate{X: *face.FaceLandmarks.NoseRightAlarOutTip.X, Y: *face.FaceLandmarks.NoseRightAlarOutTip.Y},
-		UpperLipTop:         &model.Coordinate{X: *face.FaceLandmarks.UpperLipTop.X, Y: *face.FaceLandmarks.UpperLipTop.Y},
-		UpperLipBottom:      &model.Coordinate{X: *face.FaceLandmarks.UpperLipBottom.X, Y: *face.FaceLandmarks.UpperLipBottom.Y},
-		UnderLipTop:         &model.Coordinate{X: *face.FaceLandmarks.UnderLipTop.X, Y: *face.FaceLandmarks.UnderLipTop.Y},
-		UnderLipBottom:      &model.Coordinate{X: *face.FaceLandmarks.UnderLipBottom.X, Y: *face.FaceLandmarks.UnderLipBottom.Y},
+func (r *queryResolver) FindSimilarFace(ctx context.Context, probeFaceURL *string, faceListID string) (*model.SimilarFaceResponse, error) {
+	client := faceapi.Connect(ctx)
+	faces, err := client.DetectFace(*probeFaceURL)
+	if err != nil {
+		return nil, err
 	}
-	return &landmarks
+	if len(*faces) != 1 {
+		return nil, fmt.Errorf("%d faces detected in the image, but expected 1", len(*faces))
+	}
+	face := (*faces)[0]
+	similar, err := client.FindSimilarFace(face.FaceID.String(), faceListID)
+	if err != nil {
+		return nil, err
+	}
+	returnSimilar := []*model.SimilarFace{}
+	for _, f := range *similar {
+		returnSimilar = append(returnSimilar, &model.SimilarFace{Similarity: *f.Confidence, SimilarFaceID: f.PersistedFaceID.String()})
+	}
+	facelist, err := client.GetFaceList(faceListID)
+	if err != nil {
+		return nil, err
+	}
+	return &model.SimilarFaceResponse{
+		DetectedFace: createDetectedFace(face),
+		FaceList:     createFaceList(facelist),
+		SimilarFaces: returnSimilar,
+	}, nil
 }
 
-func getRectangle(face face.DetectedFace) *model.Rectangle {
-	rectangle := model.Rectangle{
-		Width:  int(*face.FaceRectangle.Width),
-		Height: int(*face.FaceRectangle.Height),
-		Top:    int(*face.FaceRectangle.Top),
-		Left:   int(*face.FaceRectangle.Left),
-	}
-	return &rectangle
-}
+// Mutation returns generated.MutationResolver implementation.
+func (r *Resolver) Mutation() generated.MutationResolver { return &mutationResolver{r} }
 
 // Query returns generated.QueryResolver implementation.
 func (r *Resolver) Query() generated.QueryResolver { return &queryResolver{r} }
 
+type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }

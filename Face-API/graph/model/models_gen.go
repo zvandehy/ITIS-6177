@@ -14,13 +14,15 @@ type Attributes struct {
 	Moustache *float64 `json:"Moustache"`
 	// Estimated length of the beard on the detected face where 0 is no beard and 1 is a very long beard.
 	Beard *float64 `json:"Beard"`
-	// Estimated length of the sideburns on the detected face where 0 is no sideburns and 1 is a very long sideburns.
+	// Estimated length of the sideburns on the detected face where 0 is no sideburns and 1 is very long sideburns.
 	Sideburns *float64 `json:"Sideburns"`
 	// Predicted type of glasses on the detected face. Values could be "NoGlasses", "ReadingGlasses", "Sunglasses", or "SwimmingGoggles".
 	Glasses *string `json:"Glasses"`
 	// The intensity of each type of emotion that can be detected on the face. Values range between [0,1] where 0 is no emotion and 1 is an intense emotion.
 	Emotion *Emotion `json:"Emotion"`
 	// Highest confidence hair color of the detected face. If the color cannot be detected, the hair is "invisible", or the individual is likely "bald" then the returned color is "Unknown".
+	//
+	// A detected hair color could be "black", "blond", "brown", "gray", "red", "white", or "other".
 	HairColor *string `json:"HairColor"`
 	// EyeMakeup predicts if the detected face is wearing eye makeup (true) or not (false).
 	EyeMakeup *bool `json:"EyeMakeup"`
@@ -38,24 +40,27 @@ type Attributes struct {
 
 // Coordinates (X,Y) of the specified Landmark
 type Coordinate struct {
+	// x-coordinate
 	X float64 `json:"X"`
+	// y-coordinate
 	Y float64 `json:"Y"`
 }
 
-// DetectedFace in the provided image has a unique FaceID uuid
-// A rectangle can be drawn around the detected face using FaceRectangle information.
-// Face features can be pinpointed using FaceLandmarks.
-// Attributes of the face like hair, emotion, gender, etc. can be found in FaceAttributes.
+// A face detected in an image with details about the face features/attributes and 2-dimensional position.
 type DetectedFace struct {
-	FaceID         string      `json:"FaceID"`
-	FaceRectangle  *Rectangle  `json:"FaceRectangle"`
-	FaceLandmarks  *Landmarks  `json:"FaceLandmarks"`
+	// DetectedFace in the provided image has a unique FaceID uuid
+	FaceID string `json:"FaceID"`
+	// A rectangle can be drawn around the detected face using FaceRectangle information.
+	FaceRectangle *Rectangle `json:"FaceRectangle"`
+	// Face features like eyes, nose, and mouth, can be pinpointed using FaceLandmarks.
+	FaceLandmarks *Landmarks `json:"FaceLandmarks"`
+	// Attributes of the face like hair, emotion, gender, etc. can be found in FaceAttributes.
 	FaceAttributes *Attributes `json:"FaceAttributes"`
 }
 
 // Each Emotion is a value between 0  and 1 that indicates the confidence that the detected Face is showing the specified Emotion.
 //
-// 0 indicates the Emotion is absent and 1 indicates the Emotion is present.
+// 0 indicates the Emotion is absent and 1 indicates the Emotion is intense.
 type Emotion struct {
 	Anger     float64 `json:"Anger"`
 	Contempt  float64 `json:"Contempt"`
@@ -65,6 +70,23 @@ type Emotion struct {
 	Neutral   float64 `json:"Neutral"`
 	Sadness   float64 `json:"Sadness"`
 	Surprise  float64 `json:"Surprise"`
+}
+
+type FaceList struct {
+	// Provided ID of the FaceList
+	FaceListID string `json:"FaceListID"`
+	// Provided Name of the FaceList
+	Name string `json:"Name"`
+	// Persistent FaceIDs saved to the specified FaceList.
+	Faces []string `json:"Faces"`
+}
+
+// Response data structure for the resulting FaceList after completing the mutation with the provided FaceID.
+type FaceResponse struct {
+	// The FaceList that contains (or contained) this Face
+	FaceList *FaceList `json:"FaceList"`
+	// The generated unique ID of the detected Face
+	FaceID string `json:"FaceID"`
 }
 
 // Detected Faces have explicit features related to the positioning of a person's eyes, mouth, and nose that can be plotted on a 2-dimensional plane.
@@ -101,13 +123,38 @@ type Landmarks struct {
 // Rectangle gives the top left corner of a detected face and how long (height) and wide (length) the detected face is.
 //
 // To draw a rectangle around the detected face:
+//
 //   Top-left corner: (Top, Left)
+//
 //   Top-right corner: (Top, Left+Width)
+//
 //   Bottom-left corner: (Top+Height, Left)
+//
 //   Bottom-right corner: (Top+Height, Left+Width)
 type Rectangle struct {
-	Width  int `json:"Width"`
+	// Width along X-axis of the detected face
+	Width int `json:"Width"`
+	// Height along Y-axis of the detected face
 	Height int `json:"Height"`
-	Top    int `json:"Top"`
-	Left   int `json:"Left"`
+	// Y-intercept of the top of the detected face
+	Top int `json:"Top"`
+	// X-intercept of the left side of the detected face
+	Left int `json:"Left"`
+}
+
+// SimilarFace stores information about the face that was matched to the probe face.
+type SimilarFace struct {
+	// FaceID of the face that is similar to the probe face.
+	SimilarFaceID string `json:"SimilarFaceID"`
+	// Similarity between [0,1] of the matched face to the probe face. 0 is not similar and 1 is very similar.
+	Similarity float64 `json:"Similarity"`
+}
+
+type SimilarFaceResponse struct {
+	// Face features of the probe face.
+	DetectedFace *DetectedFace `json:"DetectedFace"`
+	// The FaceList to match the probe face against.
+	FaceList *FaceList `json:"FaceList"`
+	// List of the 3 most similar faces found in the facelist.
+	SimilarFaces []*SimilarFace `json:"SimilarFaces"`
 }

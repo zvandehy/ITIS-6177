@@ -15,7 +15,7 @@ type DetectedFace {
   """
   FaceRectangle: Rectangle!
   """
-  Face features can be pinpointed using FaceLandmarks.
+  Face features like eyes, nose, and mouth, can be pinpointed using FaceLandmarks.
   """
   FaceLandmarks: Landmarks!
   """
@@ -177,13 +177,30 @@ type Emotion {
 Coordinates (X,Y) of the specified Landmark
 """
 type Coordinate {
+  "x-coordinate"
   X: Float!
+  "y-coordinate"
   Y: Float!
+}
+
+type FaceList {
+  """
+  Provided ID of the FaceList
+  """
+  FaceListID: String!
+  """
+  Provided Name of the FaceList
+  """
+  Name: String!
+  """
+  Persistent FaceIDs saved to the specified FaceList.
+  """
+  Faces: [String!]
 }
 
 type Query {
   """
-  Given the url of an image, return all of the detected faces in the image.
+  Given the url of an image, return all of the detected faces in the image. These faces and their given faceIDs and attributes are *temporary*. To save a permanent face (no image is saved), create a FaceList and add a face to it.
 
   Images should be JPEG, PNG, GIF (first frame), or BMP format.
 
@@ -197,5 +214,121 @@ type Query {
     * the face has unusual hair type or facial hair
     * the face has extreme expressions
   """
-  faces(url: String!): [DetectedFace!]!
+  faces(
+    "A URL of an image with 1 or more detectable faces"
+    url: String!
+  ): [DetectedFace!]!
+
+  """
+  Get the FaceList with the specified FaceListID.
+  """
+  facelist(
+    "The user-specified ID that uniquely identifies this FaceList."
+    FaceListID: String!
+  ): FaceList!
+
+  """
+  FindSimilarFace searches the provided FaceList for faces that are similar to the provided ProbeFace.
+
+  The URL should be an image with only one face. The face will be detected and used to find a similar face in the facelist. Attributes of the detected face will be returned.
+  """
+  findSimilarFace(
+    """
+    The URL of a face to probe for a similar match.
+    """
+    ProbeFaceURL: String
+    """
+    The FaceList gallery of faces to find a similar match to the probe face. The FaceListID should be a user created ID using the createFaceList() mutation.
+    """
+    FaceListID: String!
+  ): SimilarFaceResponse!
+}
+
+type Mutation {
+  """
+  Create a FaceList to save persistent faces. FaceLists are used to analyze saved faces and identify similar faces.
+  """
+  createFaceList(
+    "A user-specified ID that uniquely identifies this FaceList. The ID must only contain lowercase letters, underscores, and/or numbers. It cannot be equivalent to any other facelist ID."
+    FaceListID: String!
+    "A user-specified Name that does not need to be unique."
+    Name: String!
+  ): FaceList!
+  """
+  Delete a FaceList and all of its saved Faces.
+  """
+  deleteFaceList(
+    "The user-specified ID that uniquely identifies this FaceList."
+    FaceListID: String!
+  ): FaceList!
+  """
+  Add a face detected from the provided url to the list with the provided FaceListID.
+
+  Returned: FaceID & FaceList
+  FaceID is the generated unique identifier of the detected and saved Face. You should likely store this value with a name or other information so that you can refer back to what this face represents or where it is from.
+
+  FaceList is the resulting FaceList the face was saved to.
+
+  There should only be one face detected in the image.
+  """
+  addFaceToList(
+    "URL to an image that contains a single detectable face to be added to the list"
+    URL: String!
+    "The user-specified ID that uniquely identifies this FaceList."
+    FaceListID: String!
+  ): FaceResponse!
+
+  """
+  Delete a face from a FaceList using the specified FaceID and FaceListID.
+
+  Returned: FaceID & FaceList
+  FaceID is the unique identifier of the deleted Face.
+
+  FaceList is the resulting FaceList after the face was deleted.
+  """
+  deleteFaceFromList(
+    "The generated FaceID of the face that"
+    FaceID: String!
+    "The user-specified ID that uniquely identifies this FaceList."
+    FaceListID: String!
+  ): FaceResponse!
+}
+
+type SimilarFaceResponse {
+  """
+  Face features of the probe face.
+  """
+  DetectedFace: DetectedFace!
+  """
+  The FaceList to match the probe face against.
+  """
+  FaceList: FaceList!
+  """
+  List of the 3 most similar faces found in the facelist.
+  """
+  SimilarFaces: [SimilarFace!]!
+}
+
+"""
+Response data structure for the resulting FaceList after completing the mutation with the provided FaceID.
+"""
+type FaceResponse {
+  "The FaceList that contains (or contained) this Face"
+  FaceList: FaceList!
+  "The generated unique ID of the detected Face"
+  FaceID: String!
+}
+
+"""
+SimilarFace stores information about the face that was matched to the probe face.
+"""
+type SimilarFace {
+  """
+  FaceID of the face that is similar to the probe face.
+  """
+  SimilarFaceID: String!
+  """
+  Similarity between [0,1] of the matched face to the probe face. 0 is not similar and 1 is very similar.
+  """
+  Similarity: Float!
 }
