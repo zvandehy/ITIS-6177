@@ -138,5 +138,5 @@ var queries = {
 function tryItNow(queryName) {
     var encodedParam = encodeURIComponent(`${queries[queryName] ?? "{}"}`);
     var server = "http://localhost:8080"
-    window.open(`${server}/docs?query=${encodedParam}`, '_blank')
+    window.open(`${server}/graphiql?query=${encodedParam}`, '_blank')
 }
