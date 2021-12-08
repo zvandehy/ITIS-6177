@@ -22,9 +22,12 @@ require (
 	github.com/cpuguy83/go-md2man/v2 v2.0.0-20190314233015-f79a8a8ca69d // indirect
 	github.com/form3tech-oss/jwt-go v3.2.2+incompatible // indirect
 	github.com/fsnotify/fsnotify v1.5.1 // indirect
+	github.com/go-chi/chi v1.5.4
+	github.com/go-chi/chi/v5 v5.0.7 // indirect
 	github.com/gorilla/websocket v1.4.2 // indirect
 	github.com/hashicorp/golang-lru v0.5.1 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
+	github.com/julienschmidt/httprouter v1.3.0 // indirect
 	github.com/magiconair/properties v1.8.5 // indirect
 	github.com/matryer/moq v0.0.0-20200106131100-75d0ddfc0007 // indirect
 	github.com/mitchellh/mapstructure v1.4.2 // indirect
