@@ -1,26 +1,23 @@
-$(document).ready(function(){
-  
+$(document).ready(function () {
+
   let rows = document.getElementsByClassName("copy");
-  for (let i=0; i < rows.length; i++) {
-    rows[i].onclick = function(){
-      navigator.clipboard.writeText(rows[i].childNodes[1].textContent);
-      rows[i].childNodes[rows[i].childNodes.length-1].firstChild.innerHTML = "Copied!";
-      for (let j=0; j < rows.length; j++) {
-        if (i!==j) {
-          rows[j].childNodes[rows[j].childNodes.length-1].firstChild.innerHTML = "Copy!";
+  for (let i = 0; i < rows.length; i++) {
+    rows[i].onclick = function () {
+      let tooltip = rows[i].querySelector('.tooltip')
+      let img = rows[i].querySelector('.imageURL')
+      navigator.clipboard.writeText(img.textContent);
+      tooltip.innerHTML = "Copied!";
+      for (let j = 0; j < rows.length; j++) {
+        if (i !== j) {
+          rows[j].querySelector('.tooltip').innerHTML = "Copy!";
         }
       }
     }
   }
-    
-    
-    console.log("load")
-
-
 }
 )
 var queries = {
-    "faces": `query faces($url: String!) {
+  "faces": `query faces($url: String!) {
         faces(url: $url) {
           FaceID
           FaceAttributes {
@@ -71,7 +68,7 @@ var queries = {
           }
         }
       }`,
-    "addface": `mutation addFaceToList($URL: String!, $FaceListID: String!) {
+  "addface": `mutation addFaceToList($URL: String!, $FaceListID: String!) {
       addFaceToList(URL: $URL, FaceListID: $FaceListID) {
         FaceList {
           Name
@@ -80,21 +77,21 @@ var queries = {
         FaceID
       }
     }`,
-    "createfacelist":`mutation CreateFaceList($FaceListID: String!, $Name: String!) {
+  "createfacelist": `mutation CreateFaceList($FaceListID: String!, $Name: String!) {
       createFaceList(FaceListID: $FaceListID, Name:$Name) {
         FaceListID
         Name
         Faces
       }
     }`,
-    "facelist":`query facelist($FaceListID: String!) {
+  "facelist": `query facelist($FaceListID: String!) {
       facelist(FaceListID: $FaceListID) {
         FaceListID
         Name
         Faces
       }
     }`,
-    "findsimilar":`query findSimilarFace($ProbeFaceURL: String, $FaceListID: String!) {
+  "findsimilar": `query findSimilarFace($ProbeFaceURL: String, $FaceListID: String!) {
       findSimilarFace(ProbeFaceURL: $ProbeFaceURL, FaceListID: $FaceListID) {
         DetectedFace {
           FaceID
@@ -116,7 +113,7 @@ var queries = {
       }
     }
     `,
-    "deleteface":`mutation deleteFaceFromList($FaceID: String!, $FaceListID: String!) {
+  "deleteface": `mutation deleteFaceFromList($FaceID: String!, $FaceListID: String!) {
       deleteFaceFromList(FaceID: $FaceID, FaceListID: $FaceListID) {
         FaceList {
           FaceListID
@@ -127,7 +124,7 @@ var queries = {
       }
     }
     `,
-    "deletefacelist":`mutation deleteFaceList($FaceListID: String!) {
+  "deletefacelist": `mutation deleteFaceList($FaceListID: String!) {
       deleteFaceList(FaceListID: $FaceListID) {
         FaceListID
         Name
@@ -136,7 +133,7 @@ var queries = {
     }`,
 }
 function tryItNow(queryName) {
-    var encodedParam = encodeURIComponent(`${queries[queryName] ?? "{}"}`);
-    var server = "http://localhost:8080"
-    window.open(`${server}/graphiql?query=${encodedParam}`, '_blank')
+  var encodedParam = encodeURIComponent(`${queries[queryName] ?? "{}"}`);
+  var server = "http://localhost:8080"
+  window.open(`${server}/graphiql?query=${encodedParam}`, '_blank')
 }
