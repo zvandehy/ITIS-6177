@@ -19,6 +19,10 @@ const defaultPort = "8080"
 //go:embed public/index.html
 var content embed.FS
 
+//go:embed public/stylesheets/*.css
+//go:embed public/javascripts/*.js
+var public embed.FS
+
 func main() {
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -32,9 +36,15 @@ func main() {
 		panic(err)
 	}
 
+	staticFS, err := fs.Sub(public, "public")
+	if err != nil {
+		panic(err)
+	}
+
 	http.Handle("/graphiql", playground.Handler("GraphQL playground", "/query"))
 	http.Handle("/query", srv)
 	http.Handle("/docs", http.StripPrefix("/docs", http.FileServer(http.FS(fsys))))
+	http.Handle("/public/*", http.StripPrefix("/public/", http.FileServer(http.FS(staticFS))))
 	http.Handle("/", http.FileServer(http.FS(fsys)))
 
 	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
