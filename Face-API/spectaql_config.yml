@@ -15,6 +15,8 @@ info:
     url: https://www.apache.org/licenses/LICENSE-2.0.html
 
 servers:
-  - url: http://localhost:8080/query
+  - url: http://104.248.53.50:8080/query
     description: Production
     production: true
+  - url: http://104.248.53.50:8080/graphiql
+    description: Playground
