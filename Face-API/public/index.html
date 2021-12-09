@@ -207,10 +207,12 @@
                   <a
                     href="https://www.apache.org/licenses/LICENSE-2.0.html">https://www.apache.org/licenses/LICENSE-2.0.html</a>
                 </p>
-                <h5>API Endpoints</h5> <pre><code>Production:
-                  http://104.248.53.50:8080/query
-                  Playground:
-                  http://104.248.53.50:8080/graphiql
+                <h5>API Endpoints</h5>
+                <pre><code>Production:
+http://104.248.53.50:8080/query
+
+Playground:
+http://104.248.53.50:8080/graphiql
                   </code></pre>
               </section>
             </div>
@@ -1398,6 +1400,9 @@
   </h2>
   <div class="doc-row">
     <div class="doc-copy">
+      <section class="json-schema-description">
+        <p>FaceList holds an array of FaceID objects that are generated when a face is detected from a requested image url. FaceListID and Name are user-specified.</p>
+      </section>
       <section class="json-schema-properties-blank">
         <table>
           <tr>
@@ -1920,6 +1925,9 @@
   </h2>
   <div class="doc-row">
     <div class="doc-copy">
+      <section class="json-schema-description">
+        <p>Response data structure for retrieving similar faces from a facelist. Contains information about the new detected face from the requested image url, the facelist that the probe image was compared to, and an array of faceIDs with the 3 most similar faces.</p>
+      </section>
       <section class="json-schema-properties-blank">
         <table>
           <tr>
