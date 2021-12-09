@@ -13,5 +13,5 @@ RUN apk --no-cache add ca-certificates
 COPY --from=builder /go/bin/app /app
 COPY ./config.yaml .
 ENTRYPOINT /app
-LABEL Name=faceapi Version=1.0.2
+LABEL Name=faceapi Version=1.0.3
 EXPOSE 8080
