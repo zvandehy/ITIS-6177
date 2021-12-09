@@ -72,8 +72,9 @@ type Emotion struct {
 	Surprise  float64 `json:"Surprise"`
 }
 
+// FaceList holds an array of FaceID objects that are generated when a face is detected from a requested image url. FaceListID and Name are user-specified.
 type FaceList struct {
-	// Provided ID of the FaceList
+	// Provided ID of the FaceList. The ID must only contain lowercase letters, underscores, and/or numbers. It cannot be equivalent to any other facelist ID.
 	FaceListID string `json:"FaceListID"`
 	// Provided Name of the FaceList
 	Name string `json:"Name"`
@@ -150,6 +151,7 @@ type SimilarFace struct {
 	Similarity float64 `json:"Similarity"`
 }
 
+// Response data structure for retrieving similar faces from a facelist. Contains information about the new detected face from the requested image url, the facelist that the probe image was compared to, and an array of faceIDs with the 3 most similar faces.
 type SimilarFaceResponse struct {
 	// Face features of the probe face.
 	DetectedFace *DetectedFace `json:"DetectedFace"`

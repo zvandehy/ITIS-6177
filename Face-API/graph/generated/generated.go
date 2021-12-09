@@ -1007,9 +1007,12 @@ type Coordinate {
   Y: Float!
 }
 
+"""
+FaceList holds an array of FaceID objects that are generated when a face is detected from a requested image url. FaceListID and Name are user-specified.
+"""
 type FaceList {
   """
-  Provided ID of the FaceList
+  Provided ID of the FaceList. The ID must only contain lowercase letters, underscores, and/or numbers. It cannot be equivalent to any other facelist ID.
   """
   FaceListID: String!
   """
@@ -1118,6 +1121,9 @@ type Mutation {
   ): FaceResponse!
 }
 
+"""
+Response data structure for retrieving similar faces from a facelist. Contains information about the new detected face from the requested image url, the facelist that the probe image was compared to, and an array of faceIDs with the 3 most similar faces.
+"""
 type SimilarFaceResponse {
   """
   Face features of the probe face.
