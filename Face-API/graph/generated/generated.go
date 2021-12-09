@@ -1092,6 +1092,7 @@ type Mutation {
   Add a face detected from the provided url to the list with the provided FaceListID.
 
   Returned: FaceID & FaceList
+  
   FaceID is the generated unique identifier of the detected and saved Face. You should likely store this value with a name or other information so that you can refer back to what this face represents or where it is from.
 
   FaceList is the resulting FaceList the face was saved to.
