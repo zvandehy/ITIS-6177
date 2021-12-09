@@ -7,11 +7,11 @@ This API is written in Go using the GraphQL Query Language.
 The documentation page contains URLs to high quality photos of NBA players, including brothers (for similar faces). 
 
 ## LIVE
-To read documentation, go to [/docs](http://localhost:8080/docs)
+To read documentation, go to [/docs](http://104.248.53.50:8080/docs)
 
-To get started in the GraphQL Playground, go to [/graphiql](http://localhost:8080/graphiql)
+To get started in the GraphQL Playground, go to [/graphiql](http://104.248.53.50:8080/graphiql)
 
-To make queries with the API, use [/query](http://localhost:8080/query)
+To make queries with the API, use [/query](http://104.248.53.50:8080/query)
 
 ## USAGE
 The Detect Faces query will look something like this:
@@ -83,7 +83,7 @@ The response of this query looks like this:
 }
 ```
 
-For more in depth documentation, visit [the documentation page](http://localhost:8080).
+For more in depth documentation, visit [the documentation page](http://104.248.53.50:8080/docs).
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
