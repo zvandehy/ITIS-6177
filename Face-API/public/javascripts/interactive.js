@@ -5,7 +5,7 @@ $(document).ready(function () {
     rows[i].onclick = function () {
       let tooltip = rows[i].querySelector('.tooltip')
       let img = rows[i].querySelector('.imageURL')
-      navigator.clipboard.writeText(img.textContent);
+     copy(img.textContent);
       tooltip.innerHTML = "Copied!";
       for (let j = 0; j < rows.length; j++) {
         if (i !== j) {
@@ -136,4 +136,21 @@ function tryItNow(queryName) {
   var encodedParam = encodeURIComponent(`${queries[queryName] ?? "{}"}`);
   var server = "http://localhost:8080"
   window.open(`${server}/graphiql?query=${encodedParam}`, '_blank')
+}
+
+function copy(textToCopy) {
+  let textArea = document.createElement("textarea");
+        textArea.value = textToCopy;
+        // make the textarea out of viewport
+        textArea.style.position = "fixed";
+        textArea.style.left = "-999999px";
+        textArea.style.top = "-999999px";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        return new Promise((res, rej) => {
+            // here the magic happens
+            document.execCommand('copy') ? res() : rej();
+            textArea.remove();
+        });
 }
